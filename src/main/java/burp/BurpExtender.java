@@ -1,5 +1,6 @@
 package burp;
 
+import entity.CaptchaEntity;
 import ui.GUI;
 import ui.Menu;
 
@@ -7,7 +8,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.PrintWriter;
 
-public class BurpExtender implements IBurpExtender,ITab {
+public class BurpExtender implements IBurpExtender,ITab,IIntruderPayloadGeneratorFactory, IIntruderPayloadGenerator{
     public static IBurpExtenderCallbacks callbacks;
     public static IExtensionHelpers helpers;
     private String extensionName = "captcha-killer";
@@ -25,6 +26,7 @@ public class BurpExtender implements IBurpExtender,ITab {
         gui = new GUI();
         callbacks.setExtensionName(String.format("%s %s",extensionName,version));
         calllbacks.registerContextMenuFactory(new Menu());
+        calllbacks.registerIntruderPayloadGeneratorFactory(this);
 
         stdout = new PrintWriter(callbacks.getStdout(),true);
         stderr = new PrintWriter(callbacks.getStderr(),true);
@@ -62,5 +64,58 @@ public class BurpExtender implements IBurpExtender,ITab {
     @Override
     public Component getUiComponent() {
         return gui.getComponet();
+    }
+
+    @Override
+    public boolean hasMorePayloads() {
+        return true;
+    }
+
+    @Override
+    public byte[] getNextPayload(byte[] bytes) {
+        String result = "";
+        int count = 0;
+        try {
+            byte[] byteImg = GUI.requestImage(gui.getCaptchaURL(),gui.getCaptchaReqRaw());
+            //遗留问题：burp自带的发包，无法指定超时。如果访问速度过快，这里可能为空。
+            while (count < 3){
+                result = GUI.identifyCaptcha(gui.getInterfaceURL(),gui.getInterfaceReqRaw(),byteImg,gui.getRegular());
+                if(result == null || result.trim().equals("")){
+                    Thread.sleep(1000);
+                    count += 1;
+                }else{
+                    break;
+                }
+            }
+            CaptchaEntity cap = new CaptchaEntity();
+            cap.setImage(byteImg);
+            cap.setResult(result);
+            synchronized (gui.captcha){
+                int row = gui.captcha.size();
+                gui.captcha.add(cap);
+                gui.getModel().fireTableRowsInserted(row,row);
+            }
+        } catch (Exception e) {
+            result = e.getMessage();
+        }
+
+
+
+        return result.getBytes();
+    }
+
+    @Override
+    public void reset() {
+
+    }
+
+    @Override
+    public String getGeneratorName() {
+        return this.extensionName;
+    }
+
+    @Override
+    public IIntruderPayloadGenerator createNewInstance(IIntruderAttack iIntruderAttack) {
+        return this;
     }
 }

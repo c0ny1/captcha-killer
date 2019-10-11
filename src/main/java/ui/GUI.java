@@ -2,7 +2,6 @@ package ui;
 
 import burp.BurpExtender;
 import burp.IHttpRequestResponse;
-import burp.IHttpService;
 import entity.CaptchaEntity;
 import utils.HttpClient;
 import utils.Util;
@@ -80,6 +79,30 @@ public class GUI {
 
     public JTable getTable(){
         return table;
+    }
+
+    public TableModel getModel(){
+        return this.model;
+    }
+
+    public String getCaptchaURL(){
+        return this.tfURL.getText();
+    }
+
+    public String getCaptchaReqRaw(){
+        return this.taRequest.getText();
+    }
+
+    public String getInterfaceURL(){
+        return this.tfInterfaceURL.getText();
+    }
+
+    public String getInterfaceReqRaw(){
+        return this.taInterfaceReq.getText();
+    }
+
+    public String getRegular(){
+        return this.tfRegular.getText();
     }
 
     public GUI(){
@@ -252,19 +275,19 @@ public class GUI {
         });
     }
 
-    public static byte[] requestImage(IHttpRequestResponse reqRsp){
-
-        IHttpService service = reqRsp.getHttpService();
-        byte[] request =  reqRsp.getRequest();
-        IHttpRequestResponse iHttpRequestResponse = BurpExtender.callbacks.makeHttpRequest(service,request);
-        byte[] response = iHttpRequestResponse.getResponse();
-        return response;
+    public static byte[] requestImage(String url,String raw){
+        HttpClient http = new HttpClient(url,raw,null);
+        byte[] rsp = http.doReust();
+        BurpExtender.gui.getTaResponse().setText(new String(rsp));
+        int BodyOffset = BurpExtender.helpers.analyzeResponse(rsp).getBodyOffset();
+        int body_length = rsp.length -BodyOffset;
+        byte[] byteImg = Util.subBytes(rsp,BodyOffset,body_length);
+        return byteImg;
     }
 
     public class GetImageThread extends Thread {
         private String url;
         private String raw;
-        private IHttpRequestResponse MessageInfo;
 
         public GetImageThread(String url,String raw) {
             this.url = url;
@@ -273,17 +296,8 @@ public class GUI {
 
         public void run() {
             try {
-                HttpClient http = new HttpClient(url,raw,null);
-                byte[] rsp = http.doReust();
-
-                //byte[] rsq = requestImage(MessageInfo);
-                BurpExtender.gui.getTaResponse().setText(new String(rsp));
-
-                int BodyOffset = BurpExtender.helpers.analyzeResponse(rsp).getBodyOffset();
-                int body_length = rsp.length -BodyOffset;
-                byte[] body = Util.subBytes(rsp,BodyOffset,body_length);
-                byteImg = body;
-                ImageIcon icon = Util.byte2img(body);
+                byteImg = requestImage(url,raw);
+                ImageIcon icon = Util.byte2img(byteImg);
                 lbImage.setIcon(icon);
                 lbImage.setText("");
             } catch (Exception e) {
@@ -294,6 +308,17 @@ public class GUI {
         }
     }
 
+    public static String identifyCaptcha(String url,String raw,byte[] byteImg,String pattern){
+        HttpClient http = new HttpClient(url,raw,byteImg);
+        byte[] rsp = http.doReust();
+        String rspRaw = new String(rsp);
+        String res = Util.match(rspRaw,pattern);
+        //排查请求速度过快可能会导致
+        BurpExtender.stdout.println("---------------------------------------------");
+        BurpExtender.stdout.println(rspRaw);
+        BurpExtender.stdout.println("[+] res = " + res);
+        return res;
+    }
 
     public class IdentifyCaptchaThread extends Thread{
         private String url;
