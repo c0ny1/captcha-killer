@@ -7,6 +7,8 @@ import utils.HttpClient;
 import utils.Util;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -27,7 +29,9 @@ public class GUI {
     private JTextField tfURL;
     private JButton btnGetCaptcha;
     private JTextArea taRequest;
+    private JLabel lbCaptcha;
     private JLabel lbImage;
+    private JToggleButton tlbLock;
     private JTextArea taResponse;
 
     //接口配置编码
@@ -44,7 +48,6 @@ public class GUI {
 
     //识别结果面板
     private JPanel plResult;
-    private JButton btnClear;
     private JTable table;
     private JScrollPane spTable;
     private TableModel model;
@@ -140,18 +143,55 @@ public class GUI {
 
         JPanel imgRigthPanel = new JPanel();
         imgRigthPanel.setLayout(new GridBagLayout());
+        lbImage = new JLabel("");
+        lbCaptcha = new JLabel("验证码");
+        tlbLock = new JToggleButton("锁定");
+        tlbLock.setToolTipText("当配置好所有选项后，请锁定防止配置被改动！");
+        tlbLock.addChangeListener(new ChangeListener(){
+            public void stateChanged(ChangeEvent e) {
+                boolean isSelected = tlbLock.isSelected();
+                if(isSelected){
+                    tlbLock.setText("解锁");
+                    tfURL.setEnabled(false);
+                    taRequest.setEnabled(false);
+                    btnGetCaptcha.setEnabled(false);
+                    taResponse.setEnabled(false);
+                    tfInterfaceURL.setEnabled(false);
+                    btnIdentify.setEnabled(false);
+                    taInterfaceReq.setEnabled(false);
+                    tfRegular.setEnabled(false);
+                    btnSaveTmpl.setEnabled(false);
+                    taInterfaceRsq.setEnabled(false);
+                }else{
+                    tlbLock.setText("锁定");
+                    tfURL.setEnabled(true);
+                    taRequest.setEnabled(true);
+                    btnGetCaptcha.setEnabled(true);
+                    taResponse.setEnabled(true);
+                    tfInterfaceURL.setEnabled(true);
+                    btnIdentify.setEnabled(true);
+                    taInterfaceReq.setEnabled(true);
+                    tfRegular.setEnabled(true);
+                    btnSaveTmpl.setEnabled(true);
+                    taInterfaceRsq.setEnabled(true);
+                }
+                tlbLock.setSelected(isSelected);
+            }
+        });
         taResponse = new JTextArea();
         taResponse.setLineWrap(true);
         taResponse.setWrapStyleWord(true);//断行不断字
+        taResponse.setEditable(false);
         JScrollPane spResponse = new JScrollPane(taResponse);
-        lbImage = new JLabel("");
-        GBC gbc_lbimage1 = new GBC(0,0,1,1).setFill(GBC.BOTH).setInsets(3,3,0,0);
-        GBC gbc_lbimage2 = new GBC(1,0,1,100).setFill(GBC.BOTH).setWeight(100,1).setInsets(3,3,0,0);
-        GBC gbc_lbimage3 = new GBC(2,0,1,1).setFill(GBC.BOTH).setInsets(3,3,0,3);
+
+        GBC gbc_lbcaptcha = new GBC(0,0,1,1).setFill(GBC.BOTH).setInsets(3,3,0,0);
+        GBC gbc_lbimage = new GBC(1,0,1,100).setFill(GBC.BOTH).setWeight(100,1).setInsets(3,3,0,0);
+        GBC gbc_tlblock = new GBC(2,0,1,1).setFill(GBC.BOTH).setInsets(3,3,0,3);
         GBC gbc_taresponse = new GBC(0,100,100,100).setFill(GBC.BOTH).setWeight(100,100).setInsets(3,3,3,3);
-        imgRigthPanel.add(new JLabel("验证码:"),gbc_lbimage1);
-        imgRigthPanel.add(lbImage,gbc_lbimage2);
-        imgRigthPanel.add(new JButton("锁定"),gbc_lbimage3);
+
+        imgRigthPanel.add(lbCaptcha,gbc_lbcaptcha);
+        imgRigthPanel.add(lbImage,gbc_lbimage);
+        imgRigthPanel.add(tlbLock,gbc_tlblock);
         imgRigthPanel.add(spResponse,gbc_taresponse);
         spImg = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
         spImg.setResizeWeight(0.5);
@@ -217,6 +257,7 @@ public class GUI {
         taInterfaceRsq = new JTextArea();
         taInterfaceRsq.setLineWrap(true);
         taInterfaceRsq.setWrapStyleWord(true);
+        taInterfaceRsq.setEditable(false);
         JScrollPane spInterfaceRsq = new JScrollPane(taInterfaceRsq);
         GBC gbc_lbregular = new GBC(0,0,1,1).setFill(GBC.HORIZONTAL).setInsets(3,3,0,0);
         GBC gbc_tfregular = new GBC(1,0,1,1).setFill(GBC.HORIZONTAL).setInsets(3,3,0,0).setWeight(100,1);
