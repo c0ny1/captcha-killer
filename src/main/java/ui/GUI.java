@@ -3,6 +3,7 @@ package ui;
 import burp.BurpExtender;
 import burp.IHttpRequestResponse;
 import entity.CaptchaEntity;
+import entity.HttpService;
 import utils.HttpClient;
 import utils.Util;
 import javax.swing.*;
@@ -36,12 +37,21 @@ public class GUI {
 
     //接口配置编码
     private JPanel plInterfaceReq;
+    private JPopupMenu pmInterfaceMenu;
     private JTextArea taInterfaceReq;
     private JLabel lbInterfaceURL;
     private JTextField tfInterfaceURL;
     private JButton btnIdentify;
     private JPanel plInterfaceRsq;
     private JTextArea taInterfaceRsq;
+    JMenu menuTmplManager = new JMenu("模版");
+    JMenuItem miGeneralTmpl = new JMenuItem("通用模版");
+    JMenuItem miTesseract = new JMenuItem("tesseract-ocr-web");
+    JMenuItem miBaiduOCR = new JMenuItem("百度OCR");
+    JMenuItem miCNNCaptcha = new JMenuItem("cnn_captcha");
+    JMenuItem miImageRaw = new JMenuItem("验证码图片二进制内容标签");
+    JMenuItem miBase64Encode = new JMenuItem("Base64编码标签");
+    JMenuItem miURLEncode = new JMenuItem("URL编码标签");
     private JLabel lbRegular;
     private JTextField tfRegular;
     private JButton btnSaveTmpl;
@@ -53,9 +63,7 @@ public class GUI {
     private TableModel model;
 
     //一些公共变量
-    private IHttpRequestResponse captchaReqRsp;
     private byte[] byteImg = new byte[]{};
-
     public static final List<CaptchaEntity> captcha = new ArrayList<CaptchaEntity>();
 
 
@@ -69,10 +77,6 @@ public class GUI {
 
     public JTextArea getTaResponse(){
         return taResponse;
-    }
-
-    public void setCaptchaReqRsp(IHttpRequestResponse captchaReqRsp){
-        this.captchaReqRsp = captchaReqRsp;
     }
 
     public JButton getBtnGetCaptcha(){
@@ -95,16 +99,16 @@ public class GUI {
         return this.taRequest.getText();
     }
 
-    public String getInterfaceURL(){
-        return this.tfInterfaceURL.getText();
+    public JTextField getInterfaceURL(){
+        return this.tfInterfaceURL;
     }
 
-    public String getInterfaceReqRaw(){
-        return this.taInterfaceReq.getText();
+    public JTextArea getInterfaceReqRaw(){
+        return this.taInterfaceReq;
     }
 
-    public String getRegular(){
-        return this.tfRegular.getText();
+    public JTextField getRegular(){
+        return this.tfRegular;
     }
 
     public GUI(){
@@ -144,7 +148,7 @@ public class GUI {
         JPanel imgRigthPanel = new JPanel();
         imgRigthPanel.setLayout(new GridBagLayout());
         lbImage = new JLabel("");
-        lbCaptcha = new JLabel("验证码");
+        lbCaptcha = new JLabel("验证码:");
         tlbLock = new JToggleButton("锁定");
         tlbLock.setToolTipText("当配置好所有选项后，请锁定防止配置被改动！");
         tlbLock.addChangeListener(new ChangeListener(){
@@ -240,6 +244,37 @@ public class GUI {
         taInterfaceReq.setLineWrap(true);
         taInterfaceReq.setWrapStyleWord(true);
         JScrollPane spInterfaceReq = new JScrollPane(taInterfaceReq);
+        pmInterfaceMenu = new JPopupMenu();
+        menuTmplManager.add(miGeneralTmpl);
+        menuTmplManager.add(miTesseract);
+        menuTmplManager.add(miBaiduOCR);
+        menuTmplManager.add(miCNNCaptcha);
+        pmInterfaceMenu.add(menuTmplManager);
+        pmInterfaceMenu.addSeparator();
+        pmInterfaceMenu.add(miImageRaw);
+        pmInterfaceMenu.add(miBase64Encode);
+        pmInterfaceMenu.add(miURLEncode);
+        miGeneralTmpl.addActionListener(new MenuActionManger());
+        miTesseract.addActionListener(new MenuActionManger());
+        miBaiduOCR.addActionListener(new MenuActionManger());
+        miCNNCaptcha.addActionListener(new MenuActionManger());
+        menuTmplManager.addActionListener(new MenuActionManger());
+        miImageRaw.addActionListener(new MenuActionManger());
+        miBase64Encode.addActionListener(new MenuActionManger());
+        miURLEncode.addActionListener(new MenuActionManger());
+
+
+
+        taInterfaceReq.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getButton() == java.awt.event.MouseEvent.BUTTON3) {
+                    pmInterfaceMenu.show(taInterfaceReq, e.getX(), e.getY());
+                }
+            }
+        });
+
+
         GBC gbc_lbinterfaceurl = new GBC(1,0,1,1).setFill(GBC.HORIZONTAL).setInsets(3,3,0,0);
         GBC gbc_tfinterfaceurl = new GBC(2,0,1,1).setFill(GBC.HORIZONTAL).setInsets(3,3,0,0).setWeight(100,1);
         GBC gbc_btnidentify = new GBC(3,0,1,1).setFill(GBC.HORIZONTAL).setInsets(3,3,0,3);
@@ -323,13 +358,18 @@ public class GUI {
     }
 
     public static byte[] requestImage(String url,String raw){
-        HttpClient http = new HttpClient(url,raw,null);
-        byte[] rsp = http.doReust();
-        BurpExtender.gui.getTaResponse().setText(new String(rsp));
-        int BodyOffset = BurpExtender.helpers.analyzeResponse(rsp).getBodyOffset();
-        int body_length = rsp.length -BodyOffset;
-        byte[] byteImg = Util.subBytes(rsp,BodyOffset,body_length);
-        return byteImg;
+        if(Util.isURL(url)) {
+            HttpClient http = new HttpClient(url, raw, null);
+            byte[] rsp = http.doReust();
+            BurpExtender.gui.getTaResponse().setText(new String(rsp));
+            int BodyOffset = BurpExtender.helpers.analyzeResponse(rsp).getBodyOffset();
+            int body_length = rsp.length - BodyOffset;
+            byte[] byteImg = Util.subBytes(rsp, BodyOffset, body_length);
+            return byteImg;
+        }else{
+            BurpExtender.stderr.println("[-] captcha URL format invalid");
+            return null;
+        }
     }
 
     public class GetImageThread extends Thread {
@@ -342,6 +382,14 @@ public class GUI {
         }
 
         public void run() {
+            if(!Util.isURL(url)){
+                JOptionPane.showMessageDialog(null,"验证码URL不合法！","captcha-killer提示",JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            //清洗验证码URL
+            HttpService service = new HttpService(url);
+            tfURL.setText(service.toString());
+
             try {
                 byteImg = requestImage(url,raw);
                 ImageIcon icon = Util.byte2img(byteImg);
@@ -356,15 +404,19 @@ public class GUI {
     }
 
     public static String identifyCaptcha(String url,String raw,byte[] byteImg,String pattern){
-        HttpClient http = new HttpClient(url,raw,byteImg);
-        byte[] rsp = http.doReust();
-        String rspRaw = new String(rsp);
-        String res = Util.match(rspRaw,pattern);
-        //排查请求速度过快可能会导致
-        BurpExtender.stdout.println("---------------------------------------------");
-        BurpExtender.stdout.println(rspRaw);
-        BurpExtender.stdout.println("[+] res = " + res);
-        return res;
+        if(Util.isURL(url)) {
+            HttpClient http = new HttpClient(url, raw, byteImg);
+            byte[] rsp = http.doReust();
+            String rspRaw = new String(rsp);
+            String res = Util.match(rspRaw, pattern);
+            //排查请求速度过快可能会导致
+            BurpExtender.stdout.println("---------------------------------------------");
+            BurpExtender.stdout.println(rspRaw);
+            BurpExtender.stdout.println("[+] res = " + res);
+            return res;
+        }else{
+            return "Interface URL format invalid";
+        }
     }
 
     public class IdentifyCaptchaThread extends Thread{
@@ -372,6 +424,7 @@ public class GUI {
         private String raw;
         private byte[] img;
         private String pattern;
+
         public IdentifyCaptchaThread(String url,String raw,byte[] img){
             this.url = url;
             this.raw = raw;
@@ -381,9 +434,15 @@ public class GUI {
 
         @Override
         public void run() {
+            if(!Util.isURL(url)){
+                JOptionPane.showMessageDialog(null,"接口URL不合法！","captcha-killer提示",JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            //清洗接口URL
+            HttpService service = new HttpService(url);
+            tfInterfaceURL.setText(service.toString());
+
             HttpClient http = new HttpClient(url,raw,byteImg);
-            String service = http.getHttpService();
-            tfInterfaceURL.setText(service);
             byte[] rsp = http.doReust();
             String rspRaw = new String(rsp);
             taInterfaceRsq.setText(rspRaw);
@@ -403,6 +462,53 @@ public class GUI {
     }
 
 
+    public class MenuActionManger implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+
+            try {
+                if (e.getSource() == miBaiduOCR) {
+                    tfInterfaceURL.setText("https://aip.baidubce.com:443");
+                    taInterfaceReq.setText("POST /rest/2.0/ocr/v1/accurate?access_token=24.77f0182dc1c96e633010712ab483f123.2592000.1573295509.282335-17479921 HTTP/1.1\n" +
+                            "Host: aip.baidubce.com\n" +
+                            "Connection: close\n" +
+                            "Cache-Control: max-age=0\n" +
+                            "Upgrade-Insecure-Requests: 1\n" +
+                            "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.132 Safari/537.36\n" +
+                            "Sec-Fetch-Mode: navigate\n" +
+                            "Sec-Fetch-User: ?1\n" +
+                            "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3\n" +
+                            "Sec-Fetch-Site: none\n" +
+                            "Accept-Encoding: gzip, deflate\n" +
+                            "Accept-Language: zh-CN,zh;q=0.9\n" +
+                            "Content-Type: application/x-www-form-urlencoded\n" +
+                            "Content-Length: 55\n" +
+                            "\n" +
+                            "image=<urlencode><base64>{IMG_RAW}</base64></urlencode>");
+                    tfRegular.setText("\"words\"\\: \"(.*?)\"\\}");
+                }else if(e.getSource() == miImageRaw){
+                    int n = taInterfaceReq.getSelectionStart();
+                    taInterfaceReq.insert("{IMG_RAW}",n);
+                }else if(e.getSource() == miBase64Encode){
+                    int start = taInterfaceReq.getSelectionStart();
+                    int end = taInterfaceReq.getSelectionEnd();
+                    String newStr = String.format("<base64>%s</base64>",taInterfaceReq.getSelectedText());
+                    StringBuffer sbRaw = new StringBuffer(taInterfaceReq.getText());
+                    sbRaw.replace(start,end,newStr);
+                    taInterfaceReq.setText(sbRaw.toString());
+                }else if(e.getSource() == miURLEncode){
+                    int start = taInterfaceReq.getSelectionStart();
+                    int end = taInterfaceReq.getSelectionEnd();
+                    String newStr = String.format("<URLEncode>%s</URLEncode>",taInterfaceReq.getSelectedText());
+                    StringBuffer sbRaw = new StringBuffer(taInterfaceReq.getText());
+                    sbRaw.replace(start,end,newStr);
+                    taInterfaceReq.setText(sbRaw.toString());
+                }
+
+            } catch (Exception ex) {
+            }
+        }
+    }
     public Component getComponet(){
         return MainPanel;
     }

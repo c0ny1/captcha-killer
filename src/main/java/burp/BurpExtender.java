@@ -79,7 +79,7 @@ public class BurpExtender implements IBurpExtender,ITab,IIntruderPayloadGenerato
             byte[] byteImg = GUI.requestImage(gui.getCaptchaURL(),gui.getCaptchaReqRaw());
             //遗留问题：burp自带的发包，无法指定超时。如果访问速度过快，这里可能为空。
             while (count < 3){
-                result = GUI.identifyCaptcha(gui.getInterfaceURL(),gui.getInterfaceReqRaw(),byteImg,gui.getRegular());
+                result = GUI.identifyCaptcha(gui.getInterfaceURL().getText(),gui.getInterfaceReqRaw().getText(),byteImg,gui.getRegular().getText());
                 if(result == null || result.trim().equals("")){
                     Thread.sleep(1000);
                     count += 1;
