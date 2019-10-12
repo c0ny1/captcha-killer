@@ -10,6 +10,8 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,7 +44,6 @@ public class GUI {
 
     //识别结果面板
     private JPanel plResult;
-    private JLabel lbResultTitle;
     private JButton btnClear;
     private JTable table;
     private JScrollPane spTable;
@@ -105,7 +106,7 @@ public class GUI {
 
     public GUI(){
         MainPanel = new JPanel();
-        MainPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
+        MainPanel.setBorder(new EmptyBorder(2, 2, 2, 2));
         MainPanel.setLayout(new BorderLayout(0, 0));
 
         //图片获取面板
@@ -128,10 +129,10 @@ public class GUI {
 
         JPanel imgLeftPanel = new JPanel();
         imgLeftPanel.setLayout(new GridBagLayout());
-        GBC gbc_lburl = new GBC(0,0,1,1).setFill(GBC.HORIZONTAL).setInsets(5,5,0,0);
-        GBC gbc_tfurl = new GBC(1,0,1,1).setFill(GBC.HORIZONTAL).setWeight(100,1).setInsets(5,5,0,0);
-        GBC gbc_btngetcaptcha = new GBC(2,0,11,1).setInsets(5,5,0,5);
-        GBC gbc_tarequst = new GBC(0,1,100,100).setFill(GBC.BOTH).setWeight(100,100).setInsets(5,5,5,5);
+        GBC gbc_lburl = new GBC(0,0,1,1).setFill(GBC.HORIZONTAL).setInsets(3,3,0,0);
+        GBC gbc_tfurl = new GBC(1,0,1,1).setFill(GBC.HORIZONTAL).setWeight(100,1).setInsets(3,3,0,0);
+        GBC gbc_btngetcaptcha = new GBC(2,0,11,1).setInsets(3,3,0,3);
+        GBC gbc_tarequst = new GBC(0,1,100,100).setFill(GBC.BOTH).setWeight(100,100).setInsets(3,3,3,3);
         imgLeftPanel.add(lbURL,gbc_lburl);
         imgLeftPanel.add(tfURL,gbc_tfurl);
         imgLeftPanel.add(btnGetCaptcha,gbc_btngetcaptcha);
@@ -144,13 +145,13 @@ public class GUI {
         taResponse.setWrapStyleWord(true);//断行不断字
         JScrollPane spResponse = new JScrollPane(taResponse);
         lbImage = new JLabel("");
-        GBC gbc_lbimage1 = new GBC(0,0,1,1).setFill(GBC.BOTH).setInsets(5,5,0,0);
-        GBC gbc_lbimage2 = new GBC(1,0,1,1).setFill(GBC.BOTH).setWeight(100,1).setInsets(5,5,0,0);
-        GBC gbc_lbimage3 = new GBC(2,0,1,1).setFill(GBC.BOTH).setInsets(5,5,0,5);
-        GBC gbc_taresponse = new GBC(0,2,100,100).setFill(GBC.BOTH).setWeight(100,100).setInsets(5,5,5,5);
+        GBC gbc_lbimage1 = new GBC(0,0,1,1).setFill(GBC.BOTH).setInsets(3,3,0,0);
+        GBC gbc_lbimage2 = new GBC(1,0,1,100).setFill(GBC.BOTH).setWeight(100,1).setInsets(3,3,0,0);
+        GBC gbc_lbimage3 = new GBC(2,0,1,1).setFill(GBC.BOTH).setInsets(3,3,0,3);
+        GBC gbc_taresponse = new GBC(0,100,100,100).setFill(GBC.BOTH).setWeight(100,100).setInsets(3,3,3,3);
         imgRigthPanel.add(new JLabel("验证码:"),gbc_lbimage1);
         imgRigthPanel.add(lbImage,gbc_lbimage2);
-        imgRigthPanel.add(new JLabel(""),gbc_lbimage3);
+        imgRigthPanel.add(new JButton("锁定"),gbc_lbimage3);
         imgRigthPanel.add(spResponse,gbc_taresponse);
         spImg = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
         spImg.setResizeWeight(0.5);
@@ -199,10 +200,10 @@ public class GUI {
         taInterfaceReq.setLineWrap(true);
         taInterfaceReq.setWrapStyleWord(true);
         JScrollPane spInterfaceReq = new JScrollPane(taInterfaceReq);
-        GBC gbc_lbinterfaceurl = new GBC(1,0,1,1).setFill(GBC.HORIZONTAL).setInsets(5,5,0,0);
-        GBC gbc_tfinterfaceurl = new GBC(2,0,1,1).setFill(GBC.HORIZONTAL).setInsets(5,5,0,0).setWeight(100,1);
-        GBC gbc_btnidentify = new GBC(3,0,1,1).setFill(GBC.HORIZONTAL).setInsets(5,5,0,5);
-        GBC gbc_tpinterfacereq = new GBC(0,1,100,100).setFill(GBC.BOTH).setWeight(100,100).setInsets(5,5,5,5);
+        GBC gbc_lbinterfaceurl = new GBC(1,0,1,1).setFill(GBC.HORIZONTAL).setInsets(3,3,0,0);
+        GBC gbc_tfinterfaceurl = new GBC(2,0,1,1).setFill(GBC.HORIZONTAL).setInsets(3,3,0,0).setWeight(100,1);
+        GBC gbc_btnidentify = new GBC(3,0,1,1).setFill(GBC.HORIZONTAL).setInsets(3,3,0,3);
+        GBC gbc_tpinterfacereq = new GBC(0,1,100,100).setFill(GBC.BOTH).setWeight(100,100).setInsets(3,3,3,3);
         plInterfaceReq.add(lbInterfaceURL,gbc_lbinterfaceurl);
         plInterfaceReq.add(tfInterfaceURL,gbc_tfinterfaceurl);
         plInterfaceReq.add(btnIdentify,gbc_btnidentify);
@@ -212,15 +213,15 @@ public class GUI {
         plInterfaceRsq.setLayout(new GridBagLayout());
         lbRegular = new JLabel("匹配正则:");
         tfRegular = new JTextField(30);
-        btnSaveTmpl = new JButton("识别");
+        btnSaveTmpl = new JButton("匹配");
         taInterfaceRsq = new JTextArea();
         taInterfaceRsq.setLineWrap(true);
         taInterfaceRsq.setWrapStyleWord(true);
         JScrollPane spInterfaceRsq = new JScrollPane(taInterfaceRsq);
-        GBC gbc_lbregular = new GBC(0,0,1,1).setFill(GBC.HORIZONTAL).setInsets(5,5,0,0);
-        GBC gbc_tfregular = new GBC(1,0,1,1).setFill(GBC.HORIZONTAL).setInsets(5,5,0,0).setWeight(100,1);
-        GBC gbc_btnsavetmpl = new GBC(2,0,1,1).setFill(GBC.HORIZONTAL).setInsets(5,5,0,5);
-        GBC gbc_tpinterfacersq = new GBC(0,1,100,100).setFill(GBC.BOTH).setWeight(100,100).setInsets(5,5,5,5);
+        GBC gbc_lbregular = new GBC(0,0,1,1).setFill(GBC.HORIZONTAL).setInsets(3,3,0,0);
+        GBC gbc_tfregular = new GBC(1,0,1,1).setFill(GBC.HORIZONTAL).setInsets(3,3,0,0).setWeight(100,1);
+        GBC gbc_btnsavetmpl = new GBC(2,0,1,1).setFill(GBC.HORIZONTAL).setInsets(3,3,0,3);
+        GBC gbc_tpinterfacersq = new GBC(0,1,100,100).setFill(GBC.BOTH).setWeight(100,100).setInsets(3,3,3,3);
         plInterfaceRsq.add(lbRegular,gbc_lbregular);
         plInterfaceRsq.add(tfRegular,gbc_tfregular);
         plInterfaceRsq.add(btnSaveTmpl,gbc_btnsavetmpl);
@@ -230,29 +231,34 @@ public class GUI {
 
         //识别结果面板
         plResult = new JPanel();
-        lbResultTitle = new JLabel("识别结果");
-        btnClear = new JButton("清空");
-        btnClear.addActionListener(new ActionListener() {
+        final JPopupMenu pppMenu = new JPopupMenu();
+        JMenuItem miClear = new JMenuItem("清空");
+        miClear.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
                 synchronized (captcha){
                     captcha.clear();
                     model.fireTableDataChanged();
                 }
             }
         });
+        pppMenu.add(miClear);
+
         table = new JTable();
         model = new TableModel(table);
         table.setModel(model);
         table.setAutoCreateRowSorter(true);
+        table.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getButton() == java.awt.event.MouseEvent.BUTTON3) {
+                    pppMenu.show(table, e.getX(), e.getY());
+                }
+            }
+        });
         spTable = new JScrollPane(table);
         plResult.setLayout(new GridBagLayout());
-        GBC gbc_lbresulttitle = new GBC(0,0,1,1).setFill(GBC.HORIZONTAL).setInsets(5,5,0,0);
-        GBC gbc_btnclear = new GBC(1,0,1,1).setFill(GBC.HORIZONTAL).setInsets(5,5,0,5);
-        GBC gbc_taresult = new GBC(0,1,100,100).setFill(GBC.BOTH).setWeight(100,100).setInsets(5,5,5,5);
-        plResult.add(lbResultTitle,gbc_lbresulttitle);
-        plResult.add(btnClear,gbc_btnclear);
+        GBC gbc_taresult = new GBC(0,0,100,100).setFill(GBC.BOTH).setWeight(100,100).setInsets(3,3,3,3);
         plResult.add(spTable,gbc_taresult);
 
         //面板合并
@@ -261,7 +267,7 @@ public class GUI {
         spOption.setTopComponent(spImg);
         spOption.setBottomComponent(spInterface);
         spAll = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-        spAll.setResizeWeight(0.90);
+        spAll.setResizeWeight(0.85);
         spAll.setLeftComponent(spOption);
         spAll.setRightComponent(plResult);
 
