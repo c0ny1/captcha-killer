@@ -31,6 +31,12 @@ public class HttpClient {
 
     }
 
+    public String getHttpService(){
+        String service = String.format("%s://%s:%d",protocol,host,port);
+        return service;
+    }
+
+
     private void parser(){
         if(url.startsWith("https://")){
             isSSL = true;

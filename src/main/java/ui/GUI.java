@@ -31,8 +31,6 @@ public class GUI {
     //接口配置编码
     private JPanel plInterfaceReq;
     private JTextArea taInterfaceReq;
-    private JLabel lbTmpl;
-    private JComboBox cbmTmpl;
     private JLabel lbInterfaceURL;
     private JTextField tfInterfaceURL;
     private JButton btnIdentify;
@@ -111,7 +109,7 @@ public class GUI {
         MainPanel.setLayout(new BorderLayout(0, 0));
 
         //图片获取面板
-        lbURL = new JLabel("URL:");
+        lbURL = new JLabel("验证码URL:");
         tfURL = new JTextField(30);
         btnGetCaptcha = new JButton("获取");
         btnGetCaptcha.addActionListener(new ActionListener() {
@@ -126,17 +124,13 @@ public class GUI {
         taRequest.setLineWrap(true);
         taRequest.setWrapStyleWord(true);//断行不断字
         JScrollPane spRequest = new JScrollPane(taRequest);
-        taResponse = new JTextArea();
-        taResponse.setLineWrap(true);
-        taResponse.setWrapStyleWord(true);//断行不断字
-        JScrollPane spResponse = new JScrollPane(taResponse);
-        lbImage = new JLabel("验证码");
+
 
         JPanel imgLeftPanel = new JPanel();
         imgLeftPanel.setLayout(new GridBagLayout());
         GBC gbc_lburl = new GBC(0,0,1,1).setFill(GBC.HORIZONTAL).setInsets(5,5,0,0);
         GBC gbc_tfurl = new GBC(1,0,1,1).setFill(GBC.HORIZONTAL).setWeight(100,1).setInsets(5,5,0,0);
-        GBC gbc_btngetcaptcha = new GBC(2,0,1,1).setInsets(5,5,0,5);
+        GBC gbc_btngetcaptcha = new GBC(2,0,11,1).setInsets(5,5,0,5);
         GBC gbc_tarequst = new GBC(0,1,100,100).setFill(GBC.BOTH).setWeight(100,100).setInsets(5,5,5,5);
         imgLeftPanel.add(lbURL,gbc_lburl);
         imgLeftPanel.add(tfURL,gbc_tfurl);
@@ -145,22 +139,31 @@ public class GUI {
 
         JPanel imgRigthPanel = new JPanel();
         imgRigthPanel.setLayout(new GridBagLayout());
-        GBC gbc_lbimage = new GBC(0,0,100,1).setFill(GBC.BOTH).setWeight(100,1).setInsets(5,5,5,5);
+        taResponse = new JTextArea();
+        taResponse.setLineWrap(true);
+        taResponse.setWrapStyleWord(true);//断行不断字
+        JScrollPane spResponse = new JScrollPane(taResponse);
+        lbImage = new JLabel("");
+        GBC gbc_lbimage1 = new GBC(0,0,1,1).setFill(GBC.BOTH).setInsets(5,5,0,0);
+        GBC gbc_lbimage2 = new GBC(1,0,1,1).setFill(GBC.BOTH).setWeight(100,1).setInsets(5,5,0,0);
+        GBC gbc_lbimage3 = new GBC(2,0,1,1).setFill(GBC.BOTH).setInsets(5,5,0,5);
         GBC gbc_taresponse = new GBC(0,2,100,100).setFill(GBC.BOTH).setWeight(100,100).setInsets(5,5,5,5);
-        imgRigthPanel.add(lbImage,gbc_lbimage);
+        imgRigthPanel.add(new JLabel("验证码:"),gbc_lbimage1);
+        imgRigthPanel.add(lbImage,gbc_lbimage2);
+        imgRigthPanel.add(new JLabel(""),gbc_lbimage3);
         imgRigthPanel.add(spResponse,gbc_taresponse);
         spImg = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-        spImg.setDividerLocation(0.5);
+        spImg.setResizeWeight(0.5);
         spImg.setLeftComponent(imgLeftPanel);
         spImg.setRightComponent(imgRigthPanel);
 
         // 识别接口配置面板
         spInterface = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+        spInterface.setResizeWeight(0.5);
         plInterfaceReq = new JPanel();
         plInterfaceReq.setLayout(new GridBagLayout());
-        lbTmpl = new JLabel("模版");
-        cbmTmpl = new JComboBox();
-        lbInterfaceURL = new JLabel("URL:");
+
+        lbInterfaceURL = new JLabel("接口URL:");
         tfInterfaceURL = new JTextField(30);
         btnIdentify = new JButton("识别");
         btnIdentify.addActionListener(new ActionListener() {
@@ -196,14 +199,10 @@ public class GUI {
         taInterfaceReq.setLineWrap(true);
         taInterfaceReq.setWrapStyleWord(true);
         JScrollPane spInterfaceReq = new JScrollPane(taInterfaceReq);
-        GBC gbc_lbtmpl = new GBC(0,0,1,1).setFill(GBC.HORIZONTAL).setInsets(5,5,0,0);
-        GBC gbc_cbmtmpl = new GBC(1,0,1,1).setFill(GBC.HORIZONTAL).setInsets(5,5,0,0);
-        GBC gbc_lbinterfaceurl = new GBC(2,0,1,1).setFill(GBC.HORIZONTAL).setInsets(5,5,0,0);
-        GBC gbc_tfinterfaceurl = new GBC(3,0,1,1).setFill(GBC.HORIZONTAL).setInsets(5,5,0,0).setWeight(100,1);
-        GBC gbc_btnidentify = new GBC(4,0,1,1).setFill(GBC.HORIZONTAL).setInsets(5,5,0,5);
+        GBC gbc_lbinterfaceurl = new GBC(1,0,1,1).setFill(GBC.HORIZONTAL).setInsets(5,5,0,0);
+        GBC gbc_tfinterfaceurl = new GBC(2,0,1,1).setFill(GBC.HORIZONTAL).setInsets(5,5,0,0).setWeight(100,1);
+        GBC gbc_btnidentify = new GBC(3,0,1,1).setFill(GBC.HORIZONTAL).setInsets(5,5,0,5);
         GBC gbc_tpinterfacereq = new GBC(0,1,100,100).setFill(GBC.BOTH).setWeight(100,100).setInsets(5,5,5,5);
-        plInterfaceReq.add(lbTmpl,gbc_lbtmpl);
-        plInterfaceReq.add(cbmTmpl,gbc_cbmtmpl);
         plInterfaceReq.add(lbInterfaceURL,gbc_lbinterfaceurl);
         plInterfaceReq.add(tfInterfaceURL,gbc_tfinterfaceurl);
         plInterfaceReq.add(btnIdentify,gbc_btnidentify);
@@ -213,14 +212,14 @@ public class GUI {
         plInterfaceRsq.setLayout(new GridBagLayout());
         lbRegular = new JLabel("匹配正则:");
         tfRegular = new JTextField(30);
-        btnSaveTmpl = new JButton("保存为模版");
+        btnSaveTmpl = new JButton("识别");
         taInterfaceRsq = new JTextArea();
         taInterfaceRsq.setLineWrap(true);
         taInterfaceRsq.setWrapStyleWord(true);
         JScrollPane spInterfaceRsq = new JScrollPane(taInterfaceRsq);
         GBC gbc_lbregular = new GBC(0,0,1,1).setFill(GBC.HORIZONTAL).setInsets(5,5,0,0);
-        GBC gbc_tfregular = new GBC(1,0,10,1).setFill(GBC.HORIZONTAL).setInsets(5,5,0,0).setWeight(100,1);
-        GBC gbc_btnsavetmpl = new GBC(11,0,1,1).setFill(GBC.HORIZONTAL).setInsets(5,5,0,5);
+        GBC gbc_tfregular = new GBC(1,0,1,1).setFill(GBC.HORIZONTAL).setInsets(5,5,0,0).setWeight(100,1);
+        GBC gbc_btnsavetmpl = new GBC(2,0,1,1).setFill(GBC.HORIZONTAL).setInsets(5,5,0,5);
         GBC gbc_tpinterfacersq = new GBC(0,1,100,100).setFill(GBC.BOTH).setWeight(100,100).setInsets(5,5,5,5);
         plInterfaceRsq.add(lbRegular,gbc_lbregular);
         plInterfaceRsq.add(tfRegular,gbc_tfregular);
@@ -258,10 +257,11 @@ public class GUI {
 
         //面板合并
         spOption = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-        spOption.setDividerLocation(0.5);
+        spOption.setResizeWeight(0.5);
         spOption.setTopComponent(spImg);
         spOption.setBottomComponent(spInterface);
         spAll = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+        spAll.setResizeWeight(0.90);
         spAll.setLeftComponent(spOption);
         spAll.setRightComponent(plResult);
 
@@ -335,6 +335,8 @@ public class GUI {
         @Override
         public void run() {
             HttpClient http = new HttpClient(url,raw,byteImg);
+            String service = http.getHttpService();
+            tfInterfaceURL.setText(service);
             byte[] rsp = http.doReust();
             String rspRaw = new String(rsp);
             taInterfaceRsq.setText(rspRaw);
