@@ -1,12 +1,12 @@
 # captcha-killer | burp验证码识别接口调用插件
 ## 0x01 插件简介
-`captcha-killer`要解决的是让burp能用上各种验证码识别技术！
+`captcha-killer`要解决的问题是让burp能用上各种验证码识别技术！
+
+**注意：**
+1. 插件目前针对的图片型验证码，其他类型目前不支持。
+2. `captcha-killer`本身无法识别验证码，它专注于对各种验证码识别接口的调用。
 
 ![主界面](./doc/captcha-killer.png)
-
-**注意：`captcha-killer`本身无法识别验证码，它专注于对各种验证码识别接口的调用。任何识别技术，只需要开放web调用api接口就可以通过
-`captcha-killer`来调用。**
-
 
 ## 0x02 插件编译
 安装maven后，到项目目录执行如下命令：
@@ -15,7 +15,7 @@
 mvn package
 ```
 
-#### 0x03 使用小案例
+## 0x03 使用案例
 以下小案例已经编写完成，每周5在微信公众号（回忆飘如雪）陆续更新
 
 * [《captcha-killer使用步骤介绍》](./doc/Usage.md)
