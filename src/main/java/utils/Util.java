@@ -3,16 +3,48 @@ package utils;
 import burp.BurpExtender;
 import sun.misc.BASE64Encoder;
 import javax.imageio.ImageIO;
+import javax.imageio.stream.ImageInputStream;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Util {
+
+    public static boolean isImage(byte[] img){
+        // Reference: https://www.cnblogs.com/shihaiming/p/10404700.html
+        boolean isImg = false;
+        InputStream buffin = new ByteArrayInputStream(img);
+        try {
+            //两种判断方式只能选中一种
+            //第一种方式
+//            ImageInputStream iis = ImageIO.createImageInputStream(buffin);
+//            Iterator iter = ImageIO.getImageReaders(iis);
+//            if (!iter.hasNext()) {
+//                isImg = false;
+//            }else {
+//                isImg = true;
+//            }
+            //第二方式
+            BufferedImage image = ImageIO.read(buffin);
+            if(image == null){
+                isImg = false;
+            }else {
+                isImg = true;
+            }
+        } catch (IOException e) {
+            BurpExtender.stderr.println(e.getMessage());
+            isImg = false;
+        }
+        return isImg;
+    }
+
     public static ImageIcon byte2img(byte[] img) {
         InputStream buffin = new ByteArrayInputStream(img);
         Image image = null;

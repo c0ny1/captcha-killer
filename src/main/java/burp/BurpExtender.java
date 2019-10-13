@@ -3,6 +3,7 @@ package burp;
 import entity.CaptchaEntity;
 import ui.GUI;
 import ui.Menu;
+import utils.Util;
 
 import javax.swing.*;
 import java.awt.*;
@@ -73,35 +74,35 @@ public class BurpExtender implements IBurpExtender,ITab,IIntruderPayloadGenerato
 
     @Override
     public byte[] getNextPayload(byte[] bytes) {
-        String result = "";
+        if(!Util.isURL(gui.getInterfaceURL().getText())){
+            return "Interface URL format invalid".getBytes();
+        }
+
+        CaptchaEntity cap = new CaptchaEntity();
         int count = 0;
         try {
             byte[] byteImg = GUI.requestImage(gui.getCaptchaURL(),gui.getCaptchaReqRaw());
             //遗留问题：burp自带的发包，无法指定超时。如果访问速度过快，这里可能为空。
             while (count < 3){
-                result = GUI.identifyCaptcha(gui.getInterfaceURL().getText(),gui.getInterfaceReqRaw().getText(),byteImg,gui.getRegular().getText());
-                if(result == null || result.trim().equals("")){
+                cap = GUI.identifyCaptcha(gui.getInterfaceURL().getText(),gui.getTaInterfaceTmplReq().getText(),byteImg,gui.getRegular().getText());
+                if(cap.getResult() == null || cap.getResult().trim().equals("")){
                     Thread.sleep(1000);
                     count += 1;
                 }else{
                     break;
                 }
             }
-            CaptchaEntity cap = new CaptchaEntity();
-            cap.setImage(byteImg);
-            cap.setResult(result);
+
             synchronized (gui.captcha){
                 int row = gui.captcha.size();
                 gui.captcha.add(cap);
                 gui.getModel().fireTableRowsInserted(row,row);
             }
         } catch (Exception e) {
-            result = e.getMessage();
+            cap.setResult(e.getMessage());
         }
 
-
-
-        return result.getBytes();
+        return cap.getResult().getBytes();
     }
 
     @Override

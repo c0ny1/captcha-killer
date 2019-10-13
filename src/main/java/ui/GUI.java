@@ -1,7 +1,6 @@
 package ui;
 
 import burp.BurpExtender;
-import burp.IHttpRequestResponse;
 import entity.CaptchaEntity;
 import entity.HttpService;
 import utils.HttpClient;
@@ -10,6 +9,8 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -38,20 +39,23 @@ public class GUI {
     //接口配置编码
     private JPanel plInterfaceReq;
     private JPopupMenu pmInterfaceMenu;
-    private JTextArea taInterfaceReq;
+    private JTabbedPane tpInterfaceReq;
+    private JTextArea taInterfaceTmplReq;
+    private JTextArea taInterfaceRawReq;
     private JLabel lbInterfaceURL;
     private JTextField tfInterfaceURL;
     private JButton btnIdentify;
+    private JTabbedPane tpInterfaceRsq;
     private JPanel plInterfaceRsq;
     private JTextArea taInterfaceRsq;
-    JMenu menuTmplManager = new JMenu("模版");
-    JMenuItem miGeneralTmpl = new JMenuItem("通用模版");
-    JMenuItem miTesseract = new JMenuItem("tesseract-ocr-web");
-    JMenuItem miBaiduOCR = new JMenuItem("百度OCR");
-    JMenuItem miCNNCaptcha = new JMenuItem("cnn_captcha");
-    JMenuItem miImageRaw = new JMenuItem("验证码图片二进制内容标签");
-    JMenuItem miBase64Encode = new JMenuItem("Base64编码标签");
-    JMenuItem miURLEncode = new JMenuItem("URL编码标签");
+    private JMenu menuTmplManager = new JMenu("模版");
+    private JMenuItem miGeneralTmpl = new JMenuItem("通用模版");
+    private JMenuItem miTesseract = new JMenuItem("tesseract-ocr-web");
+    private JMenuItem miBaiduOCR = new JMenuItem("百度OCR");
+    private JMenuItem miCNNCaptcha = new JMenuItem("cnn_captcha");
+    private JMenuItem miImageRaw = new JMenuItem("验证码图片二进制内容标签");
+    private JMenuItem miBase64Encode = new JMenuItem("Base64编码标签");
+    private JMenuItem miURLEncode = new JMenuItem("URL编码标签");
     private JLabel lbRegular;
     private JTextField tfRegular;
     private JButton btnSaveTmpl;
@@ -63,7 +67,7 @@ public class GUI {
     private TableModel model;
 
     //一些公共变量
-    private byte[] byteImg = new byte[]{};
+    private byte[] byteImg;
     public static final List<CaptchaEntity> captcha = new ArrayList<CaptchaEntity>();
 
 
@@ -103,8 +107,12 @@ public class GUI {
         return this.tfInterfaceURL;
     }
 
+    public JTextArea getTaInterfaceTmplReq(){
+        return this.taInterfaceTmplReq;
+    }
+
     public JTextArea getInterfaceReqRaw(){
-        return this.taInterfaceReq;
+        return this.taInterfaceRawReq;
     }
 
     public JTextField getRegular(){
@@ -123,16 +131,29 @@ public class GUI {
         btnGetCaptcha.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                GetImageThread thread = new GetImageThread(tfURL.getText(),taRequest.getText());
+                if(tfURL.getText().equals(null) || tfURL.getText().trim().equals("")){
+                    JOptionPane.showMessageDialog(null,"请设置验证码URL","captcha-killer提示",JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+
+                if(taRequest.getText().equals(null) || taRequest.getText().trim().equals("")){
+                    JOptionPane.showMessageDialog(null,"请设置获取验证码的请求数据包","captcha-killer提示",JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+
+                if(!Util.isURL(tfURL.getText())){
+                    JOptionPane.showMessageDialog(null,"验证码URL不合法！","captcha-killer提示",JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+
+                GetCaptchaThread thread = new GetCaptchaThread(tfURL.getText(),taRequest.getText());
                 thread.start();
-                btnGetCaptcha.setEnabled(false);
             }
         });
         taRequest = new JTextArea();
         taRequest.setLineWrap(true);
         taRequest.setWrapStyleWord(true);//断行不断字
         JScrollPane spRequest = new JScrollPane(taRequest);
-
 
         JPanel imgLeftPanel = new JPanel();
         imgLeftPanel.setLayout(new GridBagLayout());
@@ -162,7 +183,8 @@ public class GUI {
                     taResponse.setEnabled(false);
                     tfInterfaceURL.setEnabled(false);
                     btnIdentify.setEnabled(false);
-                    taInterfaceReq.setEnabled(false);
+                    taInterfaceTmplReq.setEnabled(false);
+                    taInterfaceRawReq.setEnabled(false);
                     tfRegular.setEnabled(false);
                     btnSaveTmpl.setEnabled(false);
                     taInterfaceRsq.setEnabled(false);
@@ -174,7 +196,8 @@ public class GUI {
                     taResponse.setEnabled(true);
                     tfInterfaceURL.setEnabled(true);
                     btnIdentify.setEnabled(true);
-                    taInterfaceReq.setEnabled(true);
+                    taInterfaceTmplReq.setEnabled(true);
+                    taInterfaceRawReq.setEnabled(true);
                     tfRegular.setEnabled(true);
                     btnSaveTmpl.setEnabled(true);
                     taInterfaceRsq.setEnabled(true);
@@ -214,36 +237,48 @@ public class GUI {
         btnIdentify.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+
                 if(byteImg == null){
-                    JOptionPane.showMessageDialog(null,"请先获取要识别的图片","captcha-killer alert",JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(null,"请先获取要识别的图片","captcha-killer提示",JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+
+                if(!Util.isImage(byteImg)){
+                    JOptionPane.showMessageDialog(null,"要识别的不是图片，请重新获取！","captcha-killer提示",JOptionPane.WARNING_MESSAGE);
                     return;
                 }
 
                 if(tfInterfaceURL.getText().trim() == null || tfInterfaceURL.getText().trim().equals("")){
-                    JOptionPane.showMessageDialog(null,"请设置好接口的url","captcha-killer alert",JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(null,"请设置好接口URL","captcha-killer提示",JOptionPane.WARNING_MESSAGE);
                     return;
                 }
 
-                if(taInterfaceReq.getText().trim() == null|| taInterfaceReq.getText().trim().equals("")){
-                    JOptionPane.showMessageDialog(null,"请设置好接口的请求数据包","captcha-killer alert",JOptionPane.WARNING_MESSAGE);
+                if(taInterfaceTmplReq.getText().trim() == null|| taInterfaceTmplReq.getText().trim().equals("")){
+                    JOptionPane.showMessageDialog(null,"请设置调用接请求数据包","captcha-killer提示",JOptionPane.WARNING_MESSAGE);
                     return;
                 }
 
                 if(tfRegular.getText().trim() == null|| tfRegular.getText().trim().equals("")){
-                    JOptionPane.showMessageDialog(null,"请设置好匹配结果的正则","captcha-killer alert",JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(null,"请设置好匹配结果的正则","captcha-killer提示",JOptionPane.WARNING_MESSAGE);
                     return;
                 }
 
-                IdentifyCaptchaThread thread = new IdentifyCaptchaThread(tfInterfaceURL.getText(),taInterfaceReq.getText(),byteImg);
+                IdentifyCaptchaThread thread = new IdentifyCaptchaThread(tfInterfaceURL.getText(),taInterfaceTmplReq.getText(),byteImg);
                 thread.start();
-                taInterfaceRsq.setText("");
-                //btnIdentify.setEnabled(false);
             }
         });
-        taInterfaceReq = new JTextArea();
-        taInterfaceReq.setLineWrap(true);
-        taInterfaceReq.setWrapStyleWord(true);
-        JScrollPane spInterfaceReq = new JScrollPane(taInterfaceReq);
+        tpInterfaceReq = new JTabbedPane();
+        taInterfaceTmplReq = new JTextArea();
+        taInterfaceTmplReq.setLineWrap(true);
+        taInterfaceTmplReq.setWrapStyleWord(true);
+        JScrollPane spInterfaceReq = new JScrollPane(taInterfaceTmplReq);
+        taInterfaceRawReq = new JTextArea();
+        taInterfaceRawReq.setLineWrap(true);
+        taInterfaceRawReq.setWrapStyleWord(true);
+        taInterfaceRawReq.setEditable(false);
+        JScrollPane spInterfaceRawReq = new JScrollPane(taInterfaceRawReq);
+        tpInterfaceReq.addTab("Requst template",spInterfaceReq);
+        tpInterfaceReq.addTab("Requst raw",spInterfaceRawReq);
         pmInterfaceMenu = new JPopupMenu();
         menuTmplManager.add(miGeneralTmpl);
         menuTmplManager.add(miTesseract);
@@ -263,13 +298,11 @@ public class GUI {
         miBase64Encode.addActionListener(new MenuActionManger());
         miURLEncode.addActionListener(new MenuActionManger());
 
-
-
-        taInterfaceReq.addMouseListener(new MouseAdapter() {
+        taInterfaceTmplReq.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getButton() == java.awt.event.MouseEvent.BUTTON3) {
-                    pmInterfaceMenu.show(taInterfaceReq, e.getX(), e.getY());
+                    pmInterfaceMenu.show(taInterfaceTmplReq, e.getX(), e.getY());
                 }
             }
         });
@@ -282,18 +315,20 @@ public class GUI {
         plInterfaceReq.add(lbInterfaceURL,gbc_lbinterfaceurl);
         plInterfaceReq.add(tfInterfaceURL,gbc_tfinterfaceurl);
         plInterfaceReq.add(btnIdentify,gbc_btnidentify);
-        plInterfaceReq.add(spInterfaceReq,gbc_tpinterfacereq);
+        plInterfaceReq.add(tpInterfaceReq,gbc_tpinterfacereq);
 
         plInterfaceRsq = new JPanel();
         plInterfaceRsq.setLayout(new GridBagLayout());
         lbRegular = new JLabel("匹配正则:");
         tfRegular = new JTextField(30);
         btnSaveTmpl = new JButton("匹配");
+        tpInterfaceRsq = new JTabbedPane();
         taInterfaceRsq = new JTextArea();
         taInterfaceRsq.setLineWrap(true);
         taInterfaceRsq.setWrapStyleWord(true);
         taInterfaceRsq.setEditable(false);
         JScrollPane spInterfaceRsq = new JScrollPane(taInterfaceRsq);
+        tpInterfaceRsq.addTab("Response raw",spInterfaceRsq);
         GBC gbc_lbregular = new GBC(0,0,1,1).setFill(GBC.HORIZONTAL).setInsets(3,3,0,0);
         GBC gbc_tfregular = new GBC(1,0,1,1).setFill(GBC.HORIZONTAL).setInsets(3,3,0,0).setWeight(100,1);
         GBC gbc_btnsavetmpl = new GBC(2,0,1,1).setFill(GBC.HORIZONTAL).setInsets(3,3,0,3);
@@ -301,7 +336,7 @@ public class GUI {
         plInterfaceRsq.add(lbRegular,gbc_lbregular);
         plInterfaceRsq.add(tfRegular,gbc_tfregular);
         plInterfaceRsq.add(btnSaveTmpl,gbc_btnsavetmpl);
-        plInterfaceRsq.add(spInterfaceRsq,gbc_tpinterfacersq);
+        plInterfaceRsq.add(tpInterfaceRsq,gbc_tpinterfacersq);
         spInterface.setLeftComponent(plInterfaceReq);
         spInterface.setRightComponent(plInterfaceRsq);
 
@@ -332,6 +367,17 @@ public class GUI {
                 }
             }
         });
+        table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                int row = table.getSelectedRow();
+                if(row != -1) {
+                    taInterfaceRawReq.setText(new String(captcha.get(row).getReqRaw()));
+                    taInterfaceRsq.setText(new String(captcha.get(row).getRsqRaw()));
+                }
+            }
+        });
+
         spTable = new JScrollPane(table);
         plResult.setLayout(new GridBagLayout());
         GBC gbc_taresult = new GBC(0,0,100,100).setFill(GBC.BOTH).setWeight(100,100).setInsets(3,3,3,3);
@@ -372,26 +418,30 @@ public class GUI {
         }
     }
 
-    public class GetImageThread extends Thread {
+    public class GetCaptchaThread extends Thread {
         private String url;
         private String raw;
 
-        public GetImageThread(String url,String raw) {
+        public GetCaptchaThread(String url,String raw) {
             this.url = url;
             this.raw = raw;
         }
 
         public void run() {
-            if(!Util.isURL(url)){
-                JOptionPane.showMessageDialog(null,"验证码URL不合法！","captcha-killer提示",JOptionPane.WARNING_MESSAGE);
-                return;
-            }
+            btnGetCaptcha.setEnabled(false);
             //清洗验证码URL
             HttpService service = new HttpService(url);
             tfURL.setText(service.toString());
 
             try {
-                byteImg = requestImage(url,raw);
+                byte[] byteRes = requestImage(url,raw);
+                if(Util.isImage(byteRes)){
+                    byteImg =  byteRes;
+                }else{
+                    lbImage.setText("获取到的不是图片文件！");
+                    return;
+                }
+
                 ImageIcon icon = Util.byte2img(byteImg);
                 lbImage.setIcon(icon);
                 lbImage.setText("");
@@ -403,20 +453,21 @@ public class GUI {
         }
     }
 
-    public static String identifyCaptcha(String url,String raw,byte[] byteImg,String pattern){
-        if(Util.isURL(url)) {
-            HttpClient http = new HttpClient(url, raw, byteImg);
-            byte[] rsp = http.doReust();
-            String rspRaw = new String(rsp);
-            String res = Util.match(rspRaw, pattern);
-            //排查请求速度过快可能会导致
-            BurpExtender.stdout.println("---------------------------------------------");
-            BurpExtender.stdout.println(rspRaw);
-            BurpExtender.stdout.println("[+] res = " + res);
-            return res;
-        }else{
-            return "Interface URL format invalid";
-        }
+    public static CaptchaEntity identifyCaptcha(String url,String raw,byte[] byteImg,String pattern){
+        CaptchaEntity cap = new CaptchaEntity();
+        cap.setImage(byteImg);
+        HttpClient http = new HttpClient(url, raw, byteImg);
+        cap.setReqRaw(http.buildRequstPackget().getBytes());
+        byte[] rsp = http.doReust();
+        cap.setRsqRaw(rsp);;
+        String rspRaw = new String(rsp);
+        String res = Util.match(rspRaw, pattern);
+        cap.setResult(res);
+        //排查请求速度过快可能会导致
+        BurpExtender.stdout.println("---------------------------------------------");
+        BurpExtender.stdout.println(rspRaw);
+        BurpExtender.stdout.println("[+] res = " + res);
+        return cap;
     }
 
     public class IdentifyCaptchaThread extends Thread{
@@ -434,15 +485,15 @@ public class GUI {
 
         @Override
         public void run() {
-            if(!Util.isURL(url)){
-                JOptionPane.showMessageDialog(null,"接口URL不合法！","captcha-killer提示",JOptionPane.WARNING_MESSAGE);
-                return;
-            }
+            taInterfaceRsq.setText("");
+            btnIdentify.setEnabled(false);
             //清洗接口URL
             HttpService service = new HttpService(url);
             tfInterfaceURL.setText(service.toString());
 
             HttpClient http = new HttpClient(url,raw,byteImg);
+            String raw = http.buildRequstPackget();
+            taInterfaceRawReq.setText(raw);
             byte[] rsp = http.doReust();
             String rspRaw = new String(rsp);
             taInterfaceRsq.setText(rspRaw);
@@ -451,6 +502,8 @@ public class GUI {
             String res = Util.match(rspRaw,pattern);
             CaptchaEntity cap = new CaptchaEntity();
             cap.setImage(img);
+            cap.setReqRaw(raw.getBytes());
+            cap.setRsqRaw(rsp);
             cap.setResult(res);
 
             synchronized (captcha){
@@ -469,7 +522,7 @@ public class GUI {
             try {
                 if (e.getSource() == miBaiduOCR) {
                     tfInterfaceURL.setText("https://aip.baidubce.com:443");
-                    taInterfaceReq.setText("POST /rest/2.0/ocr/v1/accurate?access_token=24.77f0182dc1c96e633010712ab483f123.2592000.1573295509.282335-17479921 HTTP/1.1\n" +
+                    taInterfaceTmplReq.setText("POST /rest/2.0/ocr/v1/accurate?access_token=24.77f0182dc1c96e633010712ab483f123.2592000.1573295509.282335-17479921 HTTP/1.1\n" +
                             "Host: aip.baidubce.com\n" +
                             "Connection: close\n" +
                             "Cache-Control: max-age=0\n" +
@@ -487,22 +540,22 @@ public class GUI {
                             "image=<urlencode><base64>{IMG_RAW}</base64></urlencode>");
                     tfRegular.setText("\"words\"\\: \"(.*?)\"\\}");
                 }else if(e.getSource() == miImageRaw){
-                    int n = taInterfaceReq.getSelectionStart();
-                    taInterfaceReq.insert("{IMG_RAW}",n);
+                    int n = taInterfaceTmplReq.getSelectionStart();
+                    taInterfaceTmplReq.insert("{IMG_RAW}",n);
                 }else if(e.getSource() == miBase64Encode){
-                    int start = taInterfaceReq.getSelectionStart();
-                    int end = taInterfaceReq.getSelectionEnd();
-                    String newStr = String.format("<base64>%s</base64>",taInterfaceReq.getSelectedText());
-                    StringBuffer sbRaw = new StringBuffer(taInterfaceReq.getText());
+                    int start = taInterfaceTmplReq.getSelectionStart();
+                    int end = taInterfaceTmplReq.getSelectionEnd();
+                    String newStr = String.format("<base64>%s</base64>",taInterfaceTmplReq.getSelectedText());
+                    StringBuffer sbRaw = new StringBuffer(taInterfaceTmplReq.getText());
                     sbRaw.replace(start,end,newStr);
-                    taInterfaceReq.setText(sbRaw.toString());
+                    taInterfaceTmplReq.setText(sbRaw.toString());
                 }else if(e.getSource() == miURLEncode){
-                    int start = taInterfaceReq.getSelectionStart();
-                    int end = taInterfaceReq.getSelectionEnd();
-                    String newStr = String.format("<URLEncode>%s</URLEncode>",taInterfaceReq.getSelectedText());
-                    StringBuffer sbRaw = new StringBuffer(taInterfaceReq.getText());
+                    int start = taInterfaceTmplReq.getSelectionStart();
+                    int end = taInterfaceTmplReq.getSelectionEnd();
+                    String newStr = String.format("<URLEncode>%s</URLEncode>",taInterfaceTmplReq.getSelectedText());
+                    StringBuffer sbRaw = new StringBuffer(taInterfaceTmplReq.getText());
                     sbRaw.replace(start,end,newStr);
-                    taInterfaceReq.setText(sbRaw.toString());
+                    taInterfaceTmplReq.setText(sbRaw.toString());
                 }
 
             } catch (Exception ex) {

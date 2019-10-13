@@ -62,7 +62,7 @@ public class HttpClient {
         }
     }
 
-    private String buildRequstPackget(){
+    public String buildRequstPackget(){
         if(method.equals("POST")) {
             int length = data.length();
             headers.put("Content-Length", String.valueOf(length));

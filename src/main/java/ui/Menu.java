@@ -43,7 +43,7 @@ public class Menu implements IContextMenuFactory {
                     IHttpService httpservice = iReqResp.getHttpService();
                     String url = String.format("%s://%s:%d",httpservice.getProtocol(),httpservice.getHost(),httpservice.getPort());
                     BurpExtender.gui.getInterfaceURL().setText(url);
-                    BurpExtender.gui.getInterfaceReqRaw().setText(new String(iReqResp.getRequest()));
+                    BurpExtender.gui.getTaInterfaceTmplReq().setText(new String(iReqResp.getRequest()));
                 }catch (Exception ex){
                     BurpExtender.stderr.println("[-] " + ex.getMessage());
                 }
