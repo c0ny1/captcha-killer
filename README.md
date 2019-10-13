@@ -16,13 +16,13 @@ mvn package
 ```
 
 ## 0x03 使用案例
-以下小案例已经编写完成，每周5在微信公众号（回忆飘如雪）陆续更新
+以下小案例已经编写完成，每周五在微信公众号（[回忆飘如雪](https://mp.weixin.qq.com/s/I2r-lUddVHTmBRsg0J4nxw)）陆续更新
 
 * [《captcha-killer使用步骤介绍》](./doc/Usage.md)
-* 《captcha-killer调用tesseract-ocr识别验证码》[完成]
-* 《captcha-killer调用完美识别验证码系统》[待更新]
-* 《captcha-killer调用百度ocr识别验证码》[待更新][已完成]
-* 《capatch-killer+机器学习识别验证码》[待更新]
+* 《captcha-killer调用tesseract-ocr识别验证码》[待发布]
+* 《captcha-killer调用完美识别验证码系统》[待发布]
+* 《captcha-killer调用百度ocr识别验证码》[待发布]
+* 《capatch-killer+机器学习识别验证码》[待发布]
 
 ## 0x04 同类项目
 * [reCAPTCHA](https://github.com/bit4woo/reCAPTCHA)
