@@ -3,7 +3,7 @@ package entity;
 public class TmplEntity {
     private HttpService service;
     private String reqpacke;
-    private String matchRule;
+    private Rule rule;
 
     public HttpService getService() {
         return service;
@@ -21,11 +21,11 @@ public class TmplEntity {
         this.reqpacke = reqpacke;
     }
 
-    public String getMatchRule() {
-        return matchRule;
+    public Rule getRule() {
+        return rule;
     }
 
-    public void setMatchRule(String matchRule) {
-        this.matchRule = matchRule;
+    public void setRule(Rule rule) {
+        this.rule = rule;
     }
 }

@@ -1,21 +1,40 @@
+/**
+ * MIT License
+ *
+ * Copyright (c) 2019 c0ny1
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 package ui;
 
 import burp.BurpExtender;
 import entity.CaptchaEntity;
 import entity.HttpService;
+import entity.Rule;
 import utils.HttpClient;
+import utils.RuleMannager;
 import utils.Util;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
+import javax.swing.event.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,7 +75,9 @@ public class GUI {
     private JMenuItem miImageRaw = new JMenuItem("验证码图片二进制内容标签");
     private JMenuItem miBase64Encode = new JMenuItem("Base64编码标签");
     private JMenuItem miURLEncode = new JMenuItem("URL编码标签");
-    private JLabel lbRegular;
+    private JLabel lbRuleType = new JLabel("规则类型:");
+    private JComboBox cbmRuleType;
+    private JLabel lbRegular = new JLabel("匹配规则:");
     private JTextField tfRegular;
     private JButton btnSaveTmpl;
 
@@ -117,6 +138,10 @@ public class GUI {
 
     public JTextField getRegular(){
         return this.tfRegular;
+    }
+
+    public JComboBox getCbmRuleType(){
+        return this.cbmRuleType;
     }
 
     public GUI(){
@@ -184,6 +209,7 @@ public class GUI {
                     tfInterfaceURL.setEnabled(false);
                     btnIdentify.setEnabled(false);
                     taInterfaceTmplReq.setEnabled(false);
+                    cbmRuleType.setEnabled(false);
                     taInterfaceRawReq.setEnabled(false);
                     tfRegular.setEnabled(false);
                     btnSaveTmpl.setEnabled(false);
@@ -197,6 +223,7 @@ public class GUI {
                     tfInterfaceURL.setEnabled(true);
                     btnIdentify.setEnabled(true);
                     taInterfaceTmplReq.setEnabled(true);
+                    cbmRuleType.setEnabled(true);
                     taInterfaceRawReq.setEnabled(true);
                     tfRegular.setEnabled(true);
                     btnSaveTmpl.setEnabled(true);
@@ -319,20 +346,82 @@ public class GUI {
 
         plInterfaceRsq = new JPanel();
         plInterfaceRsq.setLayout(new GridBagLayout());
-        lbRegular = new JLabel("匹配正则:");
+        String[] str = new String[]{"Response data","Regular expression","Define the start and end positions","Defines the start and end strings"};
+        cbmRuleType = new JComboBox(str);
+        cbmRuleType.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                switch (e.getStateChange()){
+                    case ItemEvent.SELECTED:
+                        if(e.getItem().equals("Response data")){
+                            tfRegular.setText("response_data");
+                            tfRegular.setEnabled(false);
+                        }else{
+                            tfRegular.setEnabled(true);
+                        }
+                        break;
+                }
+            }
+        });
         tfRegular = new JTextField(30);
         btnSaveTmpl = new JButton("匹配");
+        btnSaveTmpl.setToolTipText("用于测试编写的规则是否正确");
         tpInterfaceRsq = new JTabbedPane();
         taInterfaceRsq = new JTextArea();
         taInterfaceRsq.setLineWrap(true);
         taInterfaceRsq.setWrapStyleWord(true);
         taInterfaceRsq.setEditable(false);
+        final JPopupMenu pppInterfaceRsq = new JPopupMenu();
+        JMenuItem miMarkIdentifyResult = new JMenuItem("标记为识别结果");
+        miMarkIdentifyResult.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int start = taInterfaceRsq.getSelectionStart();
+                int end = taInterfaceRsq.getSelectionEnd();
+                String raw = taInterfaceRsq.getText();
+                switch (cbmRuleType.getSelectedIndex()){
+                    case Rule.RULE_TYPE_REGULAR:
+                        String regular = RuleMannager.generateRegular(raw,start,end);
+                        tfRegular.setText(regular);
+                        break;
+                    case Rule.RULE_TYPE_POSISTION:
+                        String rule1 = RuleMannager.generatePositionRule(start,end);
+                        tfRegular.setText(rule1);
+                        break;
+                    case Rule.RULE_TYPE_START_END_STRING:
+                        String rule2 = RuleMannager.generateStartEndRule(raw,start,end);
+                        tfRegular.setText(rule2);
+                        break;
+                    default:
+                        break;
+                }
+
+            }
+        });
+        pppInterfaceRsq.add(miMarkIdentifyResult);
+        taInterfaceRsq.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                //当选择匹配模式为Response data时，不显示邮件菜单
+                if(cbmRuleType.getSelectedIndex() == 0){
+                    return;
+                }
+                if (e.getButton() == java.awt.event.MouseEvent.BUTTON3) {
+                    pppInterfaceRsq.show(taInterfaceRsq, e.getX(), e.getY());
+                }
+            }
+        });
+
         JScrollPane spInterfaceRsq = new JScrollPane(taInterfaceRsq);
         tpInterfaceRsq.addTab("Response raw",spInterfaceRsq);
-        GBC gbc_lbregular = new GBC(0,0,1,1).setFill(GBC.HORIZONTAL).setInsets(3,3,0,0);
-        GBC gbc_tfregular = new GBC(1,0,1,1).setFill(GBC.HORIZONTAL).setInsets(3,3,0,0).setWeight(100,1);
-        GBC gbc_btnsavetmpl = new GBC(2,0,1,1).setFill(GBC.HORIZONTAL).setInsets(3,3,0,3);
+        GBC gbc_lbruletype = new GBC(0,0,1,1).setFill(GBC.HORIZONTAL).setInsets(3,3,0,0);
+        GBC gbc_cbmruletype = new GBC(1,0,1,1).setFill(GBC.HORIZONTAL).setInsets(3,3,0,0);
+        GBC gbc_lbregular = new GBC(2,0,1,1).setFill(GBC.HORIZONTAL).setInsets(3,3,0,0);
+        GBC gbc_tfregular = new GBC(3,0,1,1).setFill(GBC.HORIZONTAL).setInsets(3,3,0,0).setWeight(100,1);
+        GBC gbc_btnsavetmpl = new GBC(4,0,1,1).setFill(GBC.HORIZONTAL).setInsets(3,3,0,3);
         GBC gbc_tpinterfacersq = new GBC(0,1,100,100).setFill(GBC.BOTH).setWeight(100,100).setInsets(3,3,3,3);
+        plInterfaceRsq.add(lbRuleType,gbc_lbruletype);
+        plInterfaceRsq.add(cbmRuleType,gbc_cbmruletype);
         plInterfaceRsq.add(lbRegular,gbc_lbregular);
         plInterfaceRsq.add(tfRegular,gbc_tfregular);
         plInterfaceRsq.add(btnSaveTmpl,gbc_btnsavetmpl);
@@ -453,7 +542,7 @@ public class GUI {
         }
     }
 
-    public static CaptchaEntity identifyCaptcha(String url,String raw,byte[] byteImg,String pattern){
+    public static CaptchaEntity identifyCaptcha(String url,String raw,byte[] byteImg,int type,String pattern){
         CaptchaEntity cap = new CaptchaEntity();
         cap.setImage(byteImg);
         HttpClient http = new HttpClient(url, raw, byteImg);
@@ -461,7 +550,9 @@ public class GUI {
         byte[] rsp = http.doReust();
         cap.setRsqRaw(rsp);;
         String rspRaw = new String(rsp);
-        String res = Util.match(rspRaw, pattern);
+
+        Rule rule = new Rule(type,pattern);
+        String res = RuleMannager.match(rspRaw, rule);
         cap.setResult(res);
         //排查请求速度过快可能会导致
         BurpExtender.stdout.println("---------------------------------------------");
@@ -485,6 +576,10 @@ public class GUI {
 
         @Override
         public void run() {
+
+            int type = cbmRuleType.getSelectedIndex();
+            Rule myRule = new Rule(type,tfRegular.getText());
+
             taInterfaceRsq.setText("");
             btnIdentify.setEnabled(false);
             //清洗接口URL
@@ -499,7 +594,7 @@ public class GUI {
             taInterfaceRsq.setText(rspRaw);
             btnIdentify.setEnabled(true);
 
-            String res = Util.match(rspRaw,pattern);
+            String res = RuleMannager.match(rspRaw,myRule);
             CaptchaEntity cap = new CaptchaEntity();
             cap.setImage(img);
             cap.setReqRaw(raw.getBytes());
@@ -513,7 +608,6 @@ public class GUI {
             }
         }
     }
-
 
     public class MenuActionManger implements ActionListener {
         @Override
@@ -538,6 +632,7 @@ public class GUI {
                             "Content-Length: 55\n" +
                             "\n" +
                             "image=<urlencode><base64>{IMG_RAW}</base64></urlencode>");
+                    cbmRuleType.setSelectedIndex(Rule.RULE_TYPE_REGULAR);
                     tfRegular.setText("\"words\"\\: \"(.*?)\"\\}");
                 }else if(e.getSource() == miImageRaw){
                     int n = taInterfaceTmplReq.getSelectionStart();
