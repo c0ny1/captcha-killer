@@ -1,4 +1,4 @@
-# captcha-killer | burp验证码识别接口调用插件
+# captcha-killer
 ## 0x01 插件简介
 `captcha-killer`要解决的问题是让burp能用上各种验证码识别技术！
 
