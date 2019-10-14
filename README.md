@@ -1,4 +1,11 @@
-# captcha-killer
+<h1 align="center">captcha-killer</h1>
+
+<p align="center">
+  <img title="portainer" src='https://img.shields.io/badge/version-0.1-brightgreen.svg' />
+  <img title="portainer" src='https://img.shields.io/badge/java-1.7.*-yellow.svg' />
+  <img title="portainer" src='https://img.shields.io/badge/license-MIT-red.svg' />
+</p>
+
 ## 0x01 插件简介
 `captcha-killer`要解决的问题是让burp能用上各种验证码识别技术！
 
