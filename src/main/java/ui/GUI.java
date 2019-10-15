@@ -24,19 +24,26 @@
 package ui;
 
 import burp.BurpExtender;
+import com.sun.codemodel.internal.JOp;
 import entity.CaptchaEntity;
 import entity.HttpService;
+import entity.MatchResult;
 import entity.Rule;
+import sun.jvm.hotspot.code.UncommonTrapBlob;
 import utils.HttpClient;
 import utils.RuleMannager;
 import utils.Util;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.*;
+import javax.swing.text.Style;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class GUI {
     private JPanel MainPanel;
@@ -64,9 +71,6 @@ public class GUI {
     private JLabel lbInterfaceURL;
     private JTextField tfInterfaceURL;
     private JButton btnIdentify;
-    private JTabbedPane tpInterfaceRsq;
-    private JPanel plInterfaceRsq;
-    private JTextArea taInterfaceRsq;
     private JMenu menuTmplManager = new JMenu("模版");
     private JMenuItem miGeneralTmpl = new JMenuItem("通用模版");
     private JMenuItem miTesseract = new JMenuItem("tesseract-ocr-web");
@@ -75,6 +79,10 @@ public class GUI {
     private JMenuItem miImageRaw = new JMenuItem("验证码图片二进制内容标签");
     private JMenuItem miBase64Encode = new JMenuItem("Base64编码标签");
     private JMenuItem miURLEncode = new JMenuItem("URL编码标签");
+    private JTabbedPane tpInterfaceRsq;
+    private JPanel plInterfaceRsq;
+    //private JTextArea taInterfaceRsq;
+    private JTextPane InterfaceRsq;
     private JLabel lbRuleType = new JLabel("规则类型:");
     private JComboBox cbmRuleType;
     private JLabel lbRegular = new JLabel("匹配规则:");
@@ -213,7 +221,7 @@ public class GUI {
                     taInterfaceRawReq.setEnabled(false);
                     tfRegular.setEnabled(false);
                     btnSaveTmpl.setEnabled(false);
-                    taInterfaceRsq.setEnabled(false);
+                    InterfaceRsq.setEnabled(false);
                 }else{
                     tlbLock.setText("锁定");
                     tfURL.setEnabled(true);
@@ -227,7 +235,7 @@ public class GUI {
                     taInterfaceRawReq.setEnabled(true);
                     tfRegular.setEnabled(true);
                     btnSaveTmpl.setEnabled(true);
-                    taInterfaceRsq.setEnabled(true);
+                    InterfaceRsq.setEnabled(true);
                 }
                 tlbLock.setSelected(isSelected);
             }
@@ -366,19 +374,57 @@ public class GUI {
         tfRegular = new JTextField(30);
         btnSaveTmpl = new JButton("匹配");
         btnSaveTmpl.setToolTipText("用于测试编写的规则是否正确");
+        btnSaveTmpl.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Style keywordStyle = ((StyledDocument) InterfaceRsq.getDocument()).addStyle("Keyword_Style", null);
+                StyleConstants.setBackground(keywordStyle, Color.YELLOW);
+                Style normalStyle = ((StyledDocument) InterfaceRsq.getDocument()).addStyle("Keyword_Style", null);
+                StyleConstants.setForeground(normalStyle, Color.BLACK);
+                ((StyledDocument) InterfaceRsq.getDocument()).setCharacterAttributes(0,InterfaceRsq.getText().length(),normalStyle,true);
+
+                int type = cbmRuleType.getSelectedIndex();
+                String rule = tfRegular.getText();
+                Rule ruleEntity = new Rule(type,rule);
+                MatchResult result = RuleMannager.match(InterfaceRsq.getText(),ruleEntity);
+
+
+
+                //JOptionPane.showMessageDialog(null,Util.getStringCount(InterfaceRsq.getText(),System.lineSeparator())-1,"", JOptionPane.WARNING_MESSAGE);
+                int offest = result.getStart();
+                int length = result.getEnd() - result.getStart();
+                int count = 0;
+                if(type == 0){
+                    //IndexOf获取到的字符串的位置和JTextPanel面板中的位置不一致，这是由于换行符号造成的。故需要前者减去换行符的个数就等于后者。
+                    String rspRaw = InterfaceRsq.getText();
+                    rspRaw = rspRaw.substring(0,rspRaw.indexOf(result.getResult()));
+                    //为了兼容win和*nix，故要分别统计\r和\n
+                    int rCount = Util.getStringCount(rspRaw,"\r");
+                    int nCount = Util.getStringCount(rspRaw,"\n");
+                    if(rCount > 0){
+                        count = rCount;
+                    }
+                    if(nCount > 0){
+                        count = nCount;
+                    }
+                    offest -= count;
+                }
+
+                ((StyledDocument) InterfaceRsq.getDocument()).setCharacterAttributes(offest,length,keywordStyle,true);
+            }
+        });
         tpInterfaceRsq = new JTabbedPane();
-        taInterfaceRsq = new JTextArea();
-        taInterfaceRsq.setLineWrap(true);
-        taInterfaceRsq.setWrapStyleWord(true);
-        taInterfaceRsq.setEditable(false);
+
+        InterfaceRsq = new JTextPane();
+        InterfaceRsq.setEditable(true);
         final JPopupMenu pppInterfaceRsq = new JPopupMenu();
         JMenuItem miMarkIdentifyResult = new JMenuItem("标记为识别结果");
         miMarkIdentifyResult.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                int start = taInterfaceRsq.getSelectionStart();
-                int end = taInterfaceRsq.getSelectionEnd();
-                String raw = taInterfaceRsq.getText();
+                int start = InterfaceRsq.getSelectionStart();
+                int end = InterfaceRsq.getSelectionEnd();
+                String raw = InterfaceRsq.getText();
                 switch (cbmRuleType.getSelectedIndex()){
                     case Rule.RULE_TYPE_REGULAR:
                         String regular = RuleMannager.generateRegular(raw,start,end);
@@ -399,7 +445,7 @@ public class GUI {
             }
         });
         pppInterfaceRsq.add(miMarkIdentifyResult);
-        taInterfaceRsq.addMouseListener(new MouseAdapter() {
+        InterfaceRsq.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 //当选择匹配模式为Response data时，不显示邮件菜单
@@ -407,12 +453,13 @@ public class GUI {
                     return;
                 }
                 if (e.getButton() == java.awt.event.MouseEvent.BUTTON3) {
-                    pppInterfaceRsq.show(taInterfaceRsq, e.getX(), e.getY());
+                    pppInterfaceRsq.show(InterfaceRsq, e.getX(), e.getY());
                 }
             }
         });
 
-        JScrollPane spInterfaceRsq = new JScrollPane(taInterfaceRsq);
+        //JScrollPane spInterfaceRsq = new JScrollPane(taInterfaceRsq);
+        JScrollPane spInterfaceRsq = new JScrollPane(InterfaceRsq);
         tpInterfaceRsq.addTab("Response raw",spInterfaceRsq);
         GBC gbc_lbruletype = new GBC(0,0,1,1).setFill(GBC.HORIZONTAL).setInsets(3,3,0,0);
         GBC gbc_cbmruletype = new GBC(1,0,1,1).setFill(GBC.HORIZONTAL).setInsets(3,3,0,0);
@@ -462,7 +509,7 @@ public class GUI {
                 int row = table.getSelectedRow();
                 if(row != -1) {
                     taInterfaceRawReq.setText(new String(captcha.get(row).getReqRaw()));
-                    taInterfaceRsq.setText(new String(captcha.get(row).getRsqRaw()));
+                    InterfaceRsq.setText(new String(captcha.get(row).getRsqRaw()));
                 }
             }
         });
@@ -552,12 +599,12 @@ public class GUI {
         String rspRaw = new String(rsp);
 
         Rule rule = new Rule(type,pattern);
-        String res = RuleMannager.match(rspRaw, rule);
-        cap.setResult(res);
+        MatchResult result = RuleMannager.match(rspRaw, rule);
+        cap.setResult(result.getResult());
         //排查请求速度过快可能会导致
         BurpExtender.stdout.println("---------------------------------------------");
         BurpExtender.stdout.println(rspRaw);
-        BurpExtender.stdout.println("[+] res = " + res);
+        BurpExtender.stdout.println("[+] res = " + result.getResult());
         return cap;
     }
 
@@ -580,7 +627,7 @@ public class GUI {
             int type = cbmRuleType.getSelectedIndex();
             Rule myRule = new Rule(type,tfRegular.getText());
 
-            taInterfaceRsq.setText("");
+            InterfaceRsq.setText("");
             btnIdentify.setEnabled(false);
             //清洗接口URL
             HttpService service = new HttpService(url);
@@ -591,15 +638,15 @@ public class GUI {
             taInterfaceRawReq.setText(raw);
             byte[] rsp = http.doReust();
             String rspRaw = new String(rsp);
-            taInterfaceRsq.setText(rspRaw);
+            InterfaceRsq.setText(rspRaw);
             btnIdentify.setEnabled(true);
 
-            String res = RuleMannager.match(rspRaw,myRule);
+            MatchResult result = RuleMannager.match(rspRaw,myRule);
             CaptchaEntity cap = new CaptchaEntity();
             cap.setImage(img);
             cap.setReqRaw(raw.getBytes());
             cap.setRsqRaw(rsp);
-            cap.setResult(res);
+            cap.setResult(result.getResult());
 
             synchronized (captcha){
                 int row = captcha.size();

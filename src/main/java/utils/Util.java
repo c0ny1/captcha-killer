@@ -186,11 +186,29 @@ public class Util {
     }
 
     public static void main(String[] args) {
-        System.out.println("\\n");
-        String str1 = "\r\nsdsdsd";
-        System.out.println(str1.replace("\r","\\r"));
-        String str = "<html><body style=\"sss\">sssss</body></html>\\sdsdsd";
-        //generateRegular(str,4,6);
+        String str = "absbstst\rsdstrdbstr";
+        System.out.println(getStringCount(str,System.lineSeparator()));
     }
+
+    /**
+     * 统计字符串str中有多少个字符串keyword
+     * @param str
+     * @param keyword
+     * @return 返回存在的个数
+     */
+    public static int getStringCount(String str,String keyword){
+        int len = keyword.length();
+        int count = 0;
+        int pos = str.indexOf(keyword);
+        if(pos != -1){
+            count += 1;
+            count += getStringCount(str.substring(pos + len,str.length()),keyword);
+        }else{
+            return count;
+        }
+
+        return count;
+    }
+
 
 }

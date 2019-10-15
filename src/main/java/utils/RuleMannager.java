@@ -5,10 +5,13 @@
 package utils;
 
 import burp.BurpExtender;
+import burp.IResponseInfo;
+import entity.MatchResult;
 import entity.Rule;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import static utils.Util.escapeExprSpecialWord;
+
+import static utils.Util.*;
 
 /**
  * autor: c0ny1
@@ -16,11 +19,26 @@ import static utils.Util.escapeExprSpecialWord;
  * description: 匹配规则管理类
  */
 public class RuleMannager {
-    public static String match(String str, Rule rule){
+//    public static String match(String str, Rule rule){
+//        switch (rule.getType()){
+//            case Rule.RULE_TYPE_RESPONSE_DATA:
+//                String res = new String(Util.getRspBody(str.getBytes()));
+//                return res;
+//            case Rule.RULE_TYPE_REGULAR:
+//                return matchByRegular(str,rule.getRule());
+//            case Rule.RULE_TYPE_POSISTION:
+//                return matchByPosistion(str,rule.getnStart(),rule.getnEnd());
+//            case Rule.RULE_TYPE_START_END_STRING:
+//                return matchByStartEndString(str,rule.getStrStart(),rule.getStrEnd());
+//            default:
+//                return "unkown rule type";
+//        }
+//    }
+
+    public static MatchResult match(String str,Rule rule){
         switch (rule.getType()){
             case Rule.RULE_TYPE_RESPONSE_DATA:
-                String res = new String(Util.getRspBody(str.getBytes()));
-                return res;
+                return matchRsqData(str);
             case Rule.RULE_TYPE_REGULAR:
                 return matchByRegular(str,rule.getRule());
             case Rule.RULE_TYPE_POSISTION:
@@ -28,28 +46,54 @@ public class RuleMannager {
             case Rule.RULE_TYPE_START_END_STRING:
                 return matchByStartEndString(str,rule.getStrStart(),rule.getStrEnd());
             default:
-                return "unkown rule type";
+                MatchResult result = new MatchResult();
+                result.setResult("unkown rule type");
+                return result;
         }
     }
 
-    public static String matchByRegular(String str,String regular){
+    public static  MatchResult matchRsqData(String str){
+        MatchResult result = new MatchResult();
+        String res =  new String(getRspBody(str.getBytes()));
+        int bodyOffset = str.indexOf(res);
+        result.setStart(bodyOffset);
+        result.setEnd(bodyOffset + res.length());
+        result.setResult(res);
+        return result;
+    }
+
+    public static MatchResult matchByRegular(String str,String regular){
+        MatchResult result = new MatchResult();
+        String res = null;
         Pattern r = Pattern.compile(regular);
         Matcher m = r.matcher(str);
         if (m.find()) {
-            return m.group(1);//0会获取多余的内容
-        } else {
-            return null;
+            res = m.group(1);//0会获取多余的内容
+            System.out.println(m.start());
+            System.out.println(m.lookingAt());
         }
+        result.setStart(str.indexOf(res));
+        result.setEnd(str.indexOf(res) + res.length());
+        result.setResult(res);
+        return result;
     }
 
-    public static String matchByPosistion(String str,int start,int end){
-        return str.substring(start,end);
+    public static MatchResult matchByPosistion(String str,int start,int end){
+        MatchResult result = new MatchResult();
+        result.setStart(start);
+        result.setEnd(end);
+        result.setResult(str.substring(start,end));
+        return result;
     }
 
-    public static String matchByStartEndString(String str,String start,String end){
+    public static MatchResult matchByStartEndString(String str,String start,String end){
         int nStart = str.indexOf(start) + start.length();
         int nEnd = str.indexOf(end);
-        return str.substring(nStart,nEnd);
+        MatchResult result = new MatchResult();
+        result.setStart(nStart);
+        result.setEnd(nEnd);
+        result.setResult(str.substring(nStart,nEnd));
+        return result;
     }
 
     public static String generateRegular(String raw,int start,int end){
