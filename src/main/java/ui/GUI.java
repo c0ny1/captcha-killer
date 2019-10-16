@@ -394,7 +394,8 @@ public class GUI {
                 int offest = result.getStart();
                 int length = result.getEnd() - result.getStart();
                 int count = 0;
-                if(type == 0){
+                //如果规则类型不是Posisition类，需要进行地址转换
+                if(type != Rule.RULE_TYPE_POSISTION){
                     //IndexOf获取到的字符串的位置和JTextPanel面板中的位置不一致，这是由于换行符号造成的。故需要前者减去换行符的个数就等于后者。
                     String rspRaw = InterfaceRsq.getText();
                     rspRaw = rspRaw.substring(0,rspRaw.indexOf(result.getResult()));

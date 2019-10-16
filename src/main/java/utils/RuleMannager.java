@@ -65,16 +65,20 @@ public class RuleMannager {
     public static MatchResult matchByRegular(String str,String regular){
         MatchResult result = new MatchResult();
         String res = null;
+        int start = 0;
+        int end = 0;
         Pattern r = Pattern.compile(regular);
         Matcher m = r.matcher(str);
         if (m.find()) {
             res = m.group(1);//0会获取多余的内容
-            System.out.println(m.start());
-            System.out.println(m.lookingAt());
+            start = m.start();
+            int n = str.substring(start,str.length()).indexOf(res);
+            start += n;
+            end = start + res.length();
         }
-        result.setStart(str.indexOf(res));
-        result.setEnd(str.indexOf(res) + res.length());
         result.setResult(res);
+        result.setStart(start);
+        result.setEnd(end);
         return result;
     }
 
