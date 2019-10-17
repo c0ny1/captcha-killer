@@ -5,7 +5,6 @@
 package utils;
 
 import burp.BurpExtender;
-import burp.IResponseInfo;
 import entity.MatchResult;
 import entity.Rule;
 import java.util.regex.Matcher;
@@ -130,7 +129,7 @@ public class RuleMannager {
             BurpExtender.stderr.println("[+] " + target);
             BurpExtender.stderr.println(strReg);
 
-            if(matchByRegular(raw,strReg).equals(target)){
+            if(matchByRegular(raw,strReg).getResult().equals(target)){
                 break;
             }
 
@@ -182,7 +181,7 @@ public class RuleMannager {
         String rule = String.format("{\"start\":\"%s\",\"end\":\"%s\"}",strStart,strEnd);
 
         //验证最终生成的规则是否适用
-        if(matchByStartEndString(raw,strStart,strEnd).equals(keyword)){
+        if(matchByStartEndString(raw,strStart,strEnd).getResult().equals(keyword)){
             return rule;
         }else{
             return "generate rule fail,try again";

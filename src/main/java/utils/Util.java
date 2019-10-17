@@ -210,5 +210,22 @@ public class Util {
         return count;
     }
 
+    /**
+     * 统计字符串中有多少个换行符号
+     * @param str
+     * @return
+     */
+    public static int getRNCount(String str){
+        int count = 0;
+        int rCount = Util.getStringCount(str,"\r");
+        int nCount = Util.getStringCount(str,"\n");
+        if(rCount > 0){
+            count = rCount;
+        }
+        if(nCount > 0){
+            count = nCount;
+        }
+        return count;
+    }
 
 }

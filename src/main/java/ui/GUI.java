@@ -425,10 +425,13 @@ public class GUI {
             public void actionPerformed(ActionEvent e) {
                 int start = InterfaceRsq.getSelectionStart();
                 int end = InterfaceRsq.getSelectionEnd();
+                int rnCount = 0;
                 String raw = InterfaceRsq.getText();
                 switch (cbmRuleType.getSelectedIndex()){
                     case Rule.RULE_TYPE_REGULAR:
-                        String regular = RuleMannager.generateRegular(raw,start,end);
+                        //JTextPanel.getSelectionStart()和getSelectionEnd()与String.indexOf获取到的位置有区别，需要进行转换
+                        rnCount = Util.getRNCount(raw.substring(0,start));
+                        String regular = RuleMannager.generateRegular(raw,start+rnCount,end+rnCount);
                         tfRegular.setText(regular);
                         break;
                     case Rule.RULE_TYPE_POSISTION:
@@ -436,7 +439,9 @@ public class GUI {
                         tfRegular.setText(rule1);
                         break;
                     case Rule.RULE_TYPE_START_END_STRING:
-                        String rule2 = RuleMannager.generateStartEndRule(raw,start,end);
+                        //JTextPanel.getSelectionStart()和getSelectionEnd()与String.indexOf获取到的位置有区别，需要进行转换
+                        rnCount = Util.getRNCount(raw.substring(0,start));
+                        String rule2 = RuleMannager.generateStartEndRule(raw,start+rnCount,end+rnCount);
                         tfRegular.setText(rule2);
                         break;
                     default:

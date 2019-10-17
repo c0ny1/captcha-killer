@@ -1,9 +1,9 @@
 package entity;
 
 public class MatchResult {
-    private String result = "";
-    private int start = 0;
-    private int end = 0;
+    private String result = "";//匹配成功的字符串
+    private int start = 0; //匹配结果开始位置
+    private int end = 0; //匹配结果结束位置
 
     public String getResult() {
         return result;
