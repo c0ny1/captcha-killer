@@ -674,6 +674,29 @@ public class GUI {
             }
         });
 
+        //结果列表选中事件
+        table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                int row = table.getSelectedRow();
+                if(row != -1) {
+                    taInterfaceRawReq.setText(new String(captcha.get(row).getReqRaw()));
+                    InterfaceRsq.setText(new String(captcha.get(row).getRsqRaw()));
+                }
+            }
+        });
+
+        //结果列表右键事件，显示菜单
+        table.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getButton() == java.awt.event.MouseEvent.BUTTON3) {
+                    pppMenu.show(table, e.getX(), e.getY());
+                }
+            }
+        });
+
+        //清空结果
         miClear.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
