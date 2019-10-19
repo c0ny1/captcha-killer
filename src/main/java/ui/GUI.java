@@ -478,17 +478,38 @@ public class GUI {
                             SwingUtilities.invokeLater(new Runnable() {
                                 @Override
                                 public void run() {
-                                    String tplName = JOptionPane.showInputDialog(null,"请输入模版名字","captcha-killer提示",JOptionPane.INFORMATION_MESSAGE);
-                                    TmplEntity tpl = new TmplEntity();
-                                    tpl.setName(tplName);
-                                    tpl.setReqpacke(taInterfaceTmplReq.getText());
-                                    tpl.setService(new HttpService(tfInterfaceURL.getText()));
-                                    tpl.setRule(new Rule(cbmRuleType.getSelectedIndex(),tfRegular.getText()));
-                                    synchronized (TmplEntity.tpls){
-                                        TmplEntity.tpls.add(tpl);
+                                    if(tfInterfaceURL.getText().trim() == null || tfInterfaceURL.getText().trim().equals("")){
+                                        JOptionPane.showMessageDialog(null,"请设置好接口URL","captcha-killer提示",JOptionPane.WARNING_MESSAGE);
+                                        return;
                                     }
-                                    String tpldb = JSON.toJSONString(TmplEntity.tpls);
-                                    BurpExtender.callbacks.saveExtensionSetting("tpldb",tpldb);
+
+                                    if(taInterfaceTmplReq.getText().trim() == null|| taInterfaceTmplReq.getText().trim().equals("")){
+                                        JOptionPane.showMessageDialog(null,"请设置调用接请求数据包","captcha-killer提示",JOptionPane.WARNING_MESSAGE);
+                                        return;
+                                    }
+
+                                    if(tfRegular.getText().trim() == null|| tfRegular.getText().trim().equals("")){
+                                        JOptionPane.showMessageDialog(null,"请设置好匹配结果的正则","captcha-killer提示",JOptionPane.WARNING_MESSAGE);
+                                        return;
+                                    }
+
+                                    SwingUtilities.invokeLater(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            String tplName = JOptionPane.showInputDialog(null,"请输入模版名字","captcha-killer提示",JOptionPane.INFORMATION_MESSAGE);
+                                            TmplEntity tpl = new TmplEntity();
+                                            tpl.setName(tplName);
+                                            tpl.setReqpacke(taInterfaceTmplReq.getText());
+                                            tpl.setService(new HttpService(tfInterfaceURL.getText()));
+                                            tpl.setRule(new Rule(cbmRuleType.getSelectedIndex(),tfRegular.getText()));
+                                            synchronized (TmplEntity.tpls){
+                                                TmplEntity.tpls.add(tpl);
+                                            }
+                                            String tpldb = JSON.toJSONString(TmplEntity.tpls);
+                                            BurpExtender.callbacks.saveExtensionSetting("tpldb",tpldb);
+                                        }
+                                    });
+
                                 }
                             });
                         }
@@ -497,16 +518,40 @@ public class GUI {
                     miUpdateTpl.addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
-                            CustomDlg dlg = new CustomDlg(CustomDlg.TYPE_UPDATE_TPL);
-                            dlg.setVisible(true);
+                            if(tfInterfaceURL.getText().trim() == null || tfInterfaceURL.getText().trim().equals("")){
+                                JOptionPane.showMessageDialog(null,"请设置好接口URL","captcha-killer提示",JOptionPane.WARNING_MESSAGE);
+                                return;
+                            }
+
+                            if(taInterfaceTmplReq.getText().trim() == null|| taInterfaceTmplReq.getText().trim().equals("")){
+                                JOptionPane.showMessageDialog(null,"请设置调用接请求数据包","captcha-killer提示",JOptionPane.WARNING_MESSAGE);
+                                return;
+                            }
+
+                            if(tfRegular.getText().trim() == null|| tfRegular.getText().trim().equals("")){
+                                JOptionPane.showMessageDialog(null,"请设置好匹配结果的正则","captcha-killer提示",JOptionPane.WARNING_MESSAGE);
+                                return;
+                            }
+                            SwingUtilities.invokeLater(new Runnable() {
+                                @Override
+                                public void run() {
+                                    CustomDlg dlg = new CustomDlg(CustomDlg.TYPE_UPDATE_TPL);
+                                    dlg.setVisible(true);
+                                }
+                            });
                         }
                     });
                     //miDelTpl.addActionListener(new MenuActionManger());
                     miDelTpl.addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
-                            CustomDlg dlg = new CustomDlg(CustomDlg.TYPE_DEL_TPL);
-                            dlg.setVisible(true);
+                            SwingUtilities.invokeLater(new Runnable() {
+                                @Override
+                                public void run() {
+                                    CustomDlg dlg = new CustomDlg(CustomDlg.TYPE_DEL_TPL);
+                                    dlg.setVisible(true);
+                                }
+                            });
                         }
                     });
                     miImageRaw.addActionListener(new MenuActionManger());
