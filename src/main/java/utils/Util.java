@@ -15,6 +15,21 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Util {
+    /**
+     * 插件Banner信息
+     * @return
+     */
+    public static String getBanner(String extName,String version){
+        String bannerInfo =
+                "[+]\n"
+                        + "[+] ##############################################\n"
+                        + "[+]    " + extName + " v" + version +"\n"
+                        + "[+]    anthor: c0ny1\n"
+                        + "[+]    email:  root@gv7.me\n"
+                        + "[+]    github: http://github.com/c0ny1/captcha-killer\n"
+                        + "[+] ##############################################";
+        return bannerInfo;
+    }
 
     public static boolean isImage(byte[] img){
         // Reference: https://www.cnblogs.com/shihaiming/p/10404700.html
@@ -226,6 +241,21 @@ public class Util {
             count = nCount;
         }
         return count;
+    }
+
+    public static byte[] requestImage(String url,String raw){
+        if(Util.isURL(url)) {
+            HttpClient http = new HttpClient(url, raw, null);
+            byte[] rsp = http.doReust();
+            BurpExtender.gui.getTaResponse().setText(new String(rsp));
+            int BodyOffset = BurpExtender.helpers.analyzeResponse(rsp).getBodyOffset();
+            int body_length = rsp.length - BodyOffset;
+            byte[] byteImg = Util.subBytes(rsp, BodyOffset, body_length);
+            return byteImg;
+        }else{
+            BurpExtender.stderr.println("[-] captcha URL format invalid");
+            return null;
+        }
     }
 
 }

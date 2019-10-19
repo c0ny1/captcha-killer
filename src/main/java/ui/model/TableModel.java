@@ -1,6 +1,8 @@
-package ui;
+package ui.model;
 
 import entity.CaptchaEntity;
+import ui.GUI;
+
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;

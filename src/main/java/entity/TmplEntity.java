@@ -1,9 +1,22 @@
 package entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class TmplEntity {
+    public static List<TmplEntity> tpls = new ArrayList<TmplEntity>();
+    private String name;
     private HttpService service;
     private String reqpacke;
     private Rule rule;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public HttpService getService() {
         return service;

@@ -1,10 +1,32 @@
+/**
+ * MIT License
+ *
+ * Copyright (c) 2019 c0ny1
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 package burp;
 
 import entity.CaptchaEntity;
 import ui.GUI;
 import ui.Menu;
 import utils.Util;
-
 import javax.swing.*;
 import java.awt.*;
 import java.io.PrintWriter;
@@ -37,25 +59,11 @@ public class BurpExtender implements IBurpExtender,ITab,IIntruderPayloadGenerato
                 BurpExtender.this.callbacks.addSuiteTab(BurpExtender.this);
             }
         });
-        stdout.println(getBanner());
+        stdout.println(Util.getBanner(extensionName,version));
 
     }
 
-    /**
-     * 插件Banner信息
-     * @return
-     */
-    public String getBanner(){
-        String bannerInfo =
-                "[+]\n"
-                        + "[+] ##############################################\n"
-                        + "[+]    " + extensionName + " v" + version +"\n"
-                        + "[+]    anthor: c0ny1\n"
-                        + "[+]    email:  root@gv7.me\n"
-                        + "[+]    github: http://github.com/c0ny1/captcha-killer\n"
-                        + "[+] ##############################################";
-        return bannerInfo;
-    }
+
 
     @Override
     public String getTabCaption() {
@@ -81,7 +89,7 @@ public class BurpExtender implements IBurpExtender,ITab,IIntruderPayloadGenerato
         CaptchaEntity cap = new CaptchaEntity();
         int count = 0;
         try {
-            byte[] byteImg = GUI.requestImage(gui.getCaptchaURL(),gui.getCaptchaReqRaw());
+            byte[] byteImg = Util.requestImage(gui.getCaptchaURL(),gui.getCaptchaReqRaw());
             //遗留问题：burp自带的发包，无法指定超时。如果访问速度过快，这里可能为空。
             while (count < 3){
                 cap = GUI.identifyCaptcha(gui.getInterfaceURL().getText(),gui.getTaInterfaceTmplReq().getText(),byteImg,gui.getCbmRuleType().getSelectedIndex(),gui.getRegular().getText());
