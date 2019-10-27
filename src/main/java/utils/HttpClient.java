@@ -24,15 +24,30 @@ public class HttpClient {
         this.url = url;
         this.raw = raw;
         this.byteImg = byteImg;
+        //解析标签
         parseLabel();
+        //解析Request各个属性
         parser();
-
+        //更新Content-Length
+        updateContentLength();
     }
 
     public String getHttpService(){
         return service.toString();
     }
 
+    public String getRaw(){
+        return this.raw;
+    }
+
+
+    /**
+     * 解析标签，可以参考下
+     */
+    public void parseLabel(){
+        LableParser parser = new LableParser(byteImg);
+        raw = parser.parseAllLable(raw);
+    }
 
     private void parser(){
         if(Util.isURL(this.url)){
@@ -60,39 +75,37 @@ public class HttpClient {
         }
     }
 
-    public String buildRequstPackget(){
+
+    /**
+     * 更新请求包的Content-Length头
+     * 注意：不更新该头部，可能会导致服务端无法获取完整的请求信息。
+     * @return
+     */
+    public void updateContentLength(){
+        /**
+         * 在处理GET数据包时,要注意包结果严格来讲最后要有两个\r\n。有的web服务器对数据包要求比较严格，可能会导致请求识别。
+         * 该问题曾出现在请求某网站的验证码时，返回了403状态。
+         */
         if(method.equals("POST")) {
             int length = data.length();
             headers.put("Content-Length", String.valueOf(length));
-        }
-        String reqLine = String.format("%s %s %s",method,path,httpversion);
-        reqLine += System.lineSeparator();
-        for(Map.Entry<String,String> header:headers.entrySet()){
-            String line = String.format("%s: %s",header.getKey(),header.getValue());
-            reqLine += line;
+            String reqLine = String.format("%s %s %s",method,path,httpversion);
             reqLine += System.lineSeparator();
+            for(Map.Entry<String,String> header:headers.entrySet()){
+                String line = String.format("%s: %s",header.getKey(),header.getValue());
+                reqLine += line;
+                reqLine += System.lineSeparator();
+            }
+
+            reqLine += System.lineSeparator();
+            reqLine += data;
+            this.raw = reqLine;
         }
-
-        reqLine += System.lineSeparator();
-        reqLine += data;
-        return reqLine;
     }
 
-    /**
-     * 解析标签，可以参考下
-     */
-    public void parseLabel(){
-//        if(raw.indexOf("<@URLENCODE><@BASE64><@IMG_RAW></@IMG_RAW></@BASE64></@URLENCODE>")>0){
-//            String base64Img = Util.base64Encode(byteImg);
-//            String strImg = Util.URLEncode(base64Img);
-//            raw = raw.replace("<@URLENCODE><@BASE64><@IMG_RAW></@IMG_RAW></@BASE64></@URLENCODE>",strImg);
-//        }
-        LableParser parser = new LableParser(byteImg);
-        raw = parser.parseAllLable(raw);
-    }
 
     public byte[] doReust(){
-        byte[] req = buildRequstPackget().getBytes();
+        byte[] req = raw.getBytes();
         try {
             IHttpRequestResponse reqrsp = BurpExtender.callbacks.makeHttpRequest(service, req);
             byte[] response = reqrsp.getResponse();

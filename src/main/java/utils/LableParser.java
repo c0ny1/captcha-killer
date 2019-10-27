@@ -34,14 +34,11 @@ public class LableParser {
     private String parseOneLable(String str){
         String parseRes = "";
         String lable = str.substring(str.indexOf("<@")+2,str.indexOf(">"));
-
-        System.out.println(lable);
         if(!lable.equals(null)&&!lable.trim().equals("")) {
             String prefix = String.format("<@%s>", lable);
             String suffix = String.format("</@%s>", lable);
             String allContent = str.substring(str.indexOf(prefix), str.indexOf(suffix) + suffix.length());
             String subContent = str.substring(str.indexOf(prefix) + prefix.length(), str.indexOf(suffix));
-            System.out.println(allContent);
             if (subContent.indexOf("<@") >= 0 && subContent.indexOf(">") >= 0) {
                 str = str.replace(subContent, parseOneLable(subContent));
                 allContent = str.substring(str.indexOf(prefix), str.indexOf(suffix) + suffix.length());
@@ -119,7 +116,7 @@ public class LableParser {
 
     public static void main(String[] args) {
         String str = "a<@URLENCODE><@BASE64>1</@BASE64></@URLENCODE>b<@BASE64>sd<@IMG_RAW></@IMG_RAW>sds\n\rsdsdd</@BASE64>";
-
+        str = "<@URLENCODE><@1URLENCODE>+11111</@1URLENCODE></@URLENCODE>";
         LableParser lableParser = new LableParser("123".getBytes());
         String res = lableParser.parseAllLable(str);
         System.out.println(res);

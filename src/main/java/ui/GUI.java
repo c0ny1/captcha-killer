@@ -729,7 +729,9 @@ public class GUI {
                 if(Util.isImage(byteRes)){
                     byteImg =  byteRes;
                 }else{
+                    lbImage.setIcon(null);
                     lbImage.setText("获取到的不是图片文件！");
+                    lbImage.setForeground(Color.RED);
                     return;
                 }
 
@@ -745,13 +747,11 @@ public class GUI {
     }
 
 
-
-
     public static CaptchaEntity identifyCaptcha(String url,String raw,byte[] byteImg,int type,String pattern){
         CaptchaEntity cap = new CaptchaEntity();
         cap.setImage(byteImg);
         HttpClient http = new HttpClient(url, raw, byteImg);
-        cap.setReqRaw(http.buildRequstPackget().getBytes());
+        cap.setReqRaw(http.getRaw().getBytes());
         byte[] rsp = http.doReust();
         cap.setRsqRaw(rsp);;
         String rspRaw = new String(rsp);
@@ -792,8 +792,7 @@ public class GUI {
             tfInterfaceURL.setText(service.toString());
 
             HttpClient http = new HttpClient(url,raw,byteImg);
-            String raw = http.buildRequstPackget();
-            taInterfaceRawReq.setText(raw);
+            taInterfaceRawReq.setText(http.getRaw());
             byte[] rsp = http.doReust();
             String rspRaw = new String(rsp);
             InterfaceRsq.setText(rspRaw);
@@ -802,7 +801,7 @@ public class GUI {
             MatchResult result = RuleMannager.match(rspRaw,myRule);
             CaptchaEntity cap = new CaptchaEntity();
             cap.setImage(img);
-            cap.setReqRaw(raw.getBytes());
+            cap.setReqRaw(http.getRaw().getBytes());
             cap.setRsqRaw(rsp);
             cap.setResult(result.getResult());
 
