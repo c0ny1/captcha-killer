@@ -404,7 +404,7 @@ public class GUI {
                         @Override
                         public void actionPerformed(ActionEvent e) {
                             int n = taInterfaceTmplReq.getSelectionStart();
-                            taInterfaceTmplReq.insert("{IMG_RAW}",n);
+                            taInterfaceTmplReq.insert("<@IMG_RAW></@IMG_RAW>",n);
                         }
                     });
                     JMenuItem miBase64Encode = new JMenuItem("Base64编码标签");
@@ -413,7 +413,7 @@ public class GUI {
                         public void actionPerformed(ActionEvent e) {
                             int start = taInterfaceTmplReq.getSelectionStart();
                             int end = taInterfaceTmplReq.getSelectionEnd();
-                            String newStr = String.format("<base64>%s</base64>",taInterfaceTmplReq.getSelectedText());
+                            String newStr = String.format("<@BASE64>%s</@BASE64>",taInterfaceTmplReq.getSelectedText());
                             StringBuffer sbRaw = new StringBuffer(taInterfaceTmplReq.getText());
                             sbRaw.replace(start,end,newStr);
                             taInterfaceTmplReq.setText(sbRaw.toString());
@@ -425,7 +425,7 @@ public class GUI {
                         public void actionPerformed(ActionEvent e) {
                             int start = taInterfaceTmplReq.getSelectionStart();
                             int end = taInterfaceTmplReq.getSelectionEnd();
-                            String newStr = String.format("<URLEncode>%s</URLEncode>",taInterfaceTmplReq.getSelectedText());
+                            String newStr = String.format("<@URLENCODE>%s</@URLENCODE>",taInterfaceTmplReq.getSelectedText());
                             StringBuffer sbRaw = new StringBuffer(taInterfaceTmplReq.getText());
                             sbRaw.replace(start,end,newStr);
                             taInterfaceTmplReq.setText(sbRaw.toString());
@@ -466,7 +466,7 @@ public class GUI {
                                     "Content-Type: application/x-www-form-urlencoded\n" +
                                     "Content-Length: 55\n" +
                                     "\n" +
-                                    "image=<urlencode><base64>{IMG_RAW}</base64></urlencode>");
+                                    "image=<@URLENCODE><@BASE64><@IMG_RAW></@IMG_RAW></@BASE64></@URLENCODE>");
                             cbmRuleType.setSelectedIndex(Rule.RULE_TYPE_REGULAR);
                             tfRegular.setText("\"words\"\\: \"(.*?)\"\\}");
                         }

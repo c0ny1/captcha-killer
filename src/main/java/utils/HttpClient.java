@@ -82,11 +82,13 @@ public class HttpClient {
      * 解析标签，可以参考下
      */
     public void parseLabel(){
-        if(raw.indexOf("<urlencode><base64>{IMG_RAW}</base64></urlencode>")>0){
-            String base64Img = Util.base64Encode(byteImg);
-            String strImg = Util.URLEncode(base64Img);
-            raw = raw.replace("<urlencode><base64>{IMG_RAW}</base64></urlencode>",strImg);
-        }
+//        if(raw.indexOf("<@URLENCODE><@BASE64><@IMG_RAW></@IMG_RAW></@BASE64></@URLENCODE>")>0){
+//            String base64Img = Util.base64Encode(byteImg);
+//            String strImg = Util.URLEncode(base64Img);
+//            raw = raw.replace("<@URLENCODE><@BASE64><@IMG_RAW></@IMG_RAW></@BASE64></@URLENCODE>",strImg);
+//        }
+        LableParser parser = new LableParser(byteImg);
+        raw = parser.parseAllLable(raw);
     }
 
     public byte[] doReust(){
