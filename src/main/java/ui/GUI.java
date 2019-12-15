@@ -52,7 +52,7 @@ public class GUI {
     private JPanel plInterfaceRsq;
     //private JTextArea taInterfaceRsq;
     private JTextPane InterfaceRsq;
-    private JLabel lbRuleType = new JLabel("规则类型:");
+    private JLabel lbRuleType = new JLabel("匹配方式:");
     private JComboBox cbmRuleType;
     private JLabel lbRegular = new JLabel("匹配规则:");
     private JTextField tfRegular;
@@ -382,7 +382,7 @@ public class GUI {
                 if (e.getButton() == java.awt.event.MouseEvent.BUTTON3) {
                     synchronized (TmplEntity.tpls){
                         String str = BurpExtender.callbacks.loadExtensionSetting("tpldb");
-                        if(!str.trim().equals("") && !str.equals(null)) {
+                        if(str != "" && str != null) {
                             try {
                                 TmplEntity.tpls = JSON.parseArray(str, TmplEntity.class);
                             }catch (Exception ex){
@@ -601,8 +601,6 @@ public class GUI {
                 String rule = tfRegular.getText();
                 Rule ruleEntity = new Rule(type,rule);
                 MatchResult result = RuleMannager.match(InterfaceRsq.getText(),ruleEntity);
-
-
 
                 //JOptionPane.showMessageDialog(null,Util.getStringCount(InterfaceRsq.getText(),System.lineSeparator())-1,"", JOptionPane.WARNING_MESSAGE);
                 int offest = result.getStart();
