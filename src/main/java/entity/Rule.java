@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2019 c0ny1 (https://github.com/c0ny1/captcha-killer)
+ * License: MIT
+ */
 package entity;
 
 import com.alibaba.fastjson.JSONObject;

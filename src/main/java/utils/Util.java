@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2019 c0ny1 (https://github.com/c0ny1/captcha-killer)
+ * License: MIT
+ */
 package utils;
 
 import burp.BurpExtender;
@@ -22,13 +26,16 @@ public class Util {
      */
     public static String getBanner(String extName,String version){
         String bannerInfo =
-                "[+]\n"
-                        + "[+] ##############################################\n"
-                        + "[+]    " + extName + " v" + version +"\n"
-                        + "[+]    anthor: c0ny1\n"
-                        + "[+]    email:  root@gv7.me\n"
-                        + "[+]    github: http://github.com/c0ny1/captcha-killer\n"
-                        + "[+] ##############################################";
+                          "[*] \n"
+                        + "[*] ###################################################\n"
+                        + "[*]   " + extName + " v" + version +"\n"
+                        + "[*]   anthor: c0ny1\n"
+                        + "[*]   email:  root@gv7.me\n"
+                        + "[*]   github: http://github.com/c0ny1/captcha-killer\n"
+                        + "[*] ###################################################\n"
+                        + "[!] Install " + extName + " successful!\n"
+                        + "[*] Please enjoy it ^_^\n"
+                        + "[*] ";
         return bannerInfo;
     }
 

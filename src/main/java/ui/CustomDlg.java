@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016-2019 c0ny1 (https://github.com/c0ny1/captcha-killer)
+ * Copyright (c) 2019 c0ny1 (https://github.com/c0ny1/captcha-killer)
  * License: MIT
  */
 package ui;
@@ -11,7 +11,6 @@ import entity.Rule;
 import entity.TmplEntity;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.xml.transform.Templates;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

@@ -1,7 +1,10 @@
+/**
+ * Copyright (c) 2019 c0ny1 (https://github.com/c0ny1/captcha-killer)
+ * License: MIT
+ */
 package utils;
 
 import burp.BurpExtender;
-import burp.IExtensionHelpers;
 import burp.IHttpRequestResponse;
 import burp.IRequestInfo;
 import entity.HttpService;
