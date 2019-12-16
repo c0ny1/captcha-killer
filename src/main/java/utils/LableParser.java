@@ -22,6 +22,12 @@ public class LableParser {
         while (reqTpl.indexOf("<@")>=0){
             reqTpl = parseOneLable(reqTpl);
         }
+
+        if(reqTpl.indexOf("[base64]")>=0){
+            String b64encode = reqTpl.substring(reqTpl.indexOf("[base64]")+8,reqTpl.lastIndexOf("[base64]"));
+            String b64decode = new String(base64Decode(b64encode));
+            reqTpl = reqTpl.replace(String.format("[base64]%s[base64]",b64encode),b64decode);
+        }
         return reqTpl;
     }
 
@@ -54,7 +60,7 @@ public class LableParser {
 
     /**
      * 通过正则表达式解析标签
-     * 注意：由于内容中若出现\r\n就会导致无法匹配，故暂时弃用
+     * 注意：由于内容中若出现\r\n就会导致无法匹配，故暂时弃用!
      * @param str
      * @return
      */
@@ -86,16 +92,16 @@ public class LableParser {
 
         switch (type){
             case "BASE64":
-                if(str.startsWith("base64:")){
-                    str = str.replace("base64:","");
+                if(str.startsWith("[base64]")){
+                    str = str.replace("[base64]","");
                     encodeStr = base64Encode(base64Decode(str));
                 }else {
                     encodeStr = base64Encode(str);
                 }
                 break;
             case "URLENCODE":
-                if(str.startsWith("base64:")) {
-                    str = str.replace("base64:","");
+                if(str.startsWith("[base64]")) {
+                    str = str.replace("[base64]","");
                     byte[] byteRes = base64Decode(str);
                     encodeStr = URLEncode(new String(byteRes));
                 }else {
@@ -103,9 +109,9 @@ public class LableParser {
                 }
                 break;
             case "IMG_RAW":
-                 //byte[]转string后，string再转byte[]无法还原的，故该地方采用base64编码存储byte[]，等到使用时在解码为byte[]。
+                 //注意：byte[]转string后，string再转byte[]无法还原的，故该地方采用base64编码存储byte[]，等到使用时在解码为byte[]。
                 String base64Img = base64Encode(byteImage);
-                encodeStr = "base64:" + base64Img;
+                encodeStr = "[base64]" + base64Img + "[base64]";
                 break;
             default:
                 encodeStr = str;
@@ -115,10 +121,16 @@ public class LableParser {
     }
 
     public static void main(String[] args) {
-        String str = "a<@URLENCODE><@BASE64>1</@BASE64></@URLENCODE>b<@BASE64>sd<@IMG_RAW></@IMG_RAW>sds\n\rsdsdd</@BASE64>";
-        str = "<@URLENCODE><@1URLENCODE>+11111</@1URLENCODE></@URLENCODE>";
-        LableParser lableParser = new LableParser("123".getBytes());
-        String res = lableParser.parseAllLable(str);
-        System.out.println(res);
+//        String str = "a<@URLENCODE><@BASE64>1</@BASE64></@URLENCODE>b<@BASE64>sd<@IMG_RAW></@IMG_RAW>sds\n\rsdsdd</@BASE64>";
+//        str = "<@URLENCODE><@1URLENCODE>+11111</@1URLENCODE></@URLENCODE>";
+//        LableParser lableParser = new LableParser("123".getBytes());
+//        String res = lableParser.parseAllLable(str);
+//        System.out.println(res);
+
+        String reqTpl = "a[base64]eHh4[base64]b";
+        String base64encode = reqTpl.substring(reqTpl.indexOf("[base64]")+8,reqTpl.lastIndexOf("[base64]"));
+        String base64decode = new String(base64Decode(base64encode));
+        String str = reqTpl.replace(String.format("[base64]%s[base64]",base64encode),base64decode);
+        System.out.println(str);
     }
 }

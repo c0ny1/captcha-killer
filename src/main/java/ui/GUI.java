@@ -451,21 +451,21 @@ public class GUI {
                         @Override
                         public void actionPerformed(ActionEvent e) {
                             tfInterfaceURL.setText("https://aip.baidubce.com:443");
-                            taInterfaceTmplReq.setText("POST /rest/2.0/ocr/v1/accurate?access_token=24.77f0182dc1c96e633010712ab483f123.2592000.1573295509.282335-17479921 HTTP/1.1\n" +
-                                    "Host: aip.baidubce.com\n" +
-                                    "Connection: close\n" +
-                                    "Cache-Control: max-age=0\n" +
-                                    "Upgrade-Insecure-Requests: 1\n" +
-                                    "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.132 Safari/537.36\n" +
-                                    "Sec-Fetch-Mode: navigate\n" +
-                                    "Sec-Fetch-User: ?1\n" +
-                                    "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3\n" +
-                                    "Sec-Fetch-Site: none\n" +
-                                    "Accept-Encoding: gzip, deflate\n" +
-                                    "Accept-Language: zh-CN,zh;q=0.9\n" +
-                                    "Content-Type: application/x-www-form-urlencoded\n" +
-                                    "Content-Length: 55\n" +
-                                    "\n" +
+                            taInterfaceTmplReq.setText("POST /rest/2.0/ocr/v1/accurate?access_token=[TOKEN] HTTP/1.1\r\n" +
+                                    "Host: aip.baidubce.com\r\n" +
+                                    "Connection: close\r\n" +
+                                    "Cache-Control: max-age=0\r\n" +
+                                    "Upgrade-Insecure-Requests: 1\r\n" +
+                                    "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.132 Safari/537.36\r\n" +
+                                    "Sec-Fetch-Mode: navigate\r\n" +
+                                    "Sec-Fetch-User: ?1\r\n" +
+                                    "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3\r\n" +
+                                    "Sec-Fetch-Site: none\r\n" +
+                                    "Accept-Encoding: gzip, deflate\r\n" +
+                                    "Accept-Language: zh-CN,zh;q=0.9\r\n" +
+                                    "Content-Type: application/x-www-form-urlencoded\r\n" +
+                                    "Content-Length: 55\r\n" +
+                                    "\r\n" +
                                     "image=<@URLENCODE><@BASE64><@IMG_RAW></@IMG_RAW></@BASE64></@URLENCODE>");
                             cbmRuleType.setSelectedIndex(Rule.RULE_TYPE_REGULAR);
                             tfRegular.setText("\"words\"\\: \"(.*?)\"\\}");
@@ -784,7 +784,7 @@ public class GUI {
             Rule myRule = new Rule(type,tfRegular.getText());
 
             InterfaceRsq.setText("");
-            btnIdentify.setEnabled(false);
+            //btnIdentify.setEnabled(false);
             //清洗接口URL
             HttpService service = new HttpService(url);
             tfInterfaceURL.setText(service.toString());

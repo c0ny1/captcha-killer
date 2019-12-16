@@ -1,7 +1,9 @@
 package utils;
 
 import burp.BurpExtender;
+import burp.IExtensionHelpers;
 import burp.IHttpRequestResponse;
+import burp.IRequestInfo;
 import entity.HttpService;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,7 +29,7 @@ public class HttpClient {
         //解析标签
         parseLabel();
         //解析Request各个属性
-        parser();
+        parserRequest();
         //更新Content-Length
         updateContentLength();
     }
@@ -49,7 +51,38 @@ public class HttpClient {
         raw = parser.parseAllLable(raw);
     }
 
-    private void parser(){
+    private void parserRequest(){
+        if(Util.isURL(this.url)){
+            service = new HttpService(this.url);
+            try {
+                IRequestInfo requestInfo = BurpExtender.helpers.analyzeRequest(service, this.raw.getBytes());
+                requestInfo.getBodyOffset();
+                this.method = requestInfo.getMethod();
+                for (String header : requestInfo.getHeaders()) {
+                    if (header.indexOf(this.method) >= 0 && header.indexOf("HTTP/") >= 0) {
+                        this.path = header.split(" ")[1];
+                        this.httpversion = header.split(" ")[2];
+                        continue;
+                    }
+
+                    if (header.indexOf(": ") > 0) {
+                        String key = header.split(": ")[0];
+                        String value = header.split(": ")[1];
+                        this.headers.put(key, value);
+                    }
+                    System.out.println(header);
+                }
+
+                if (this.method.equals("POST")) {
+                    this.data = this.raw.substring(requestInfo.getBodyOffset(), this.raw.length());
+                }
+            }catch (Exception e){
+                BurpExtender.stderr.println(e.getMessage());
+            }
+        }
+    }
+
+    private void parserRequestOld(){
         if(Util.isURL(this.url)){
             service = new HttpService(this.url);
             String[] rawsArray = this.raw.split(System.lineSeparator());
@@ -74,6 +107,9 @@ public class HttpClient {
             }
         }
     }
+
+
+
 
 
     /**
