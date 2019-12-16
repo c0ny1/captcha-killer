@@ -25,7 +25,7 @@ mvn package
 ## 0x03 使用案例
 以下小案例已经编写完成，每周五在微信公众号（[回忆飘如雪](https://mp.weixin.qq.com/s/I2r-lUddVHTmBRsg0J4nxw)）陆续更新
 
-* [《captcha-killer使用步骤介绍》](./doc/Usage.md)
+* [《使用burp插件captcha-killer识别图片验证码》](http://gv7.me/articles/2019/burp-captcha-killer-usage/)
 * 《captcha-killer调用tesseract-ocr识别验证码》[待发布]
 * 《captcha-killer调用完美识别验证码系统》[待发布]
 * 《captcha-killer调用百度ocr识别验证码》[待发布]
