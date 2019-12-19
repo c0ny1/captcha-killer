@@ -59,9 +59,11 @@ public class HttpClient {
 
         if(method.equals("GET")) {
             header = reqraw;
-            if(header.indexOf("\n")>=0 && header.indexOf("\r\n") <0){
-                header.replace("\n","\r\n");
-            }
+
+            //将所有\n替换为\r\n,注意\r\n和\n混合情况下的替换。
+            header.replace("\r\n","\n");
+            header.replace("\n","\r\n");
+
             request = header;
         }
 
