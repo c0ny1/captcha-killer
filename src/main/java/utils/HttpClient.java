@@ -27,7 +27,7 @@ public class HttpClient {
 
     public HttpClient(String url,String raw,byte[] byteImg){
         this.url = url;
-        this.raw = raw;
+        this.raw = processLine(raw);
         this.byteImg = byteImg;
         //解析标签
         parseLabel();
@@ -36,6 +36,47 @@ public class HttpClient {
         //更新Content-Length
         updateContentLength();
     }
+
+    /**
+     * 将请求包头中\n替换为\r\n,因为\n可能会导致某些服务器报错，无法正确识别请求包。
+     * @param reqraw
+     * @return
+     */
+    public String processLine(String reqraw){
+        String method = null;
+        String header = null;
+        String body = null;
+        String request = null;
+
+        if(reqraw.startsWith("GET")){
+            method = "GET";
+        }else if(reqraw.startsWith("POST")){
+            method = "POST";
+        }else{
+            method = "unkown";
+            return reqraw;
+        }
+
+        if(method.equals("GET")) {
+            header = reqraw;
+            if(header.indexOf("\n")>=0 && header.indexOf("\r\n") <0){
+                header.replace("\n","\r\n");
+            }
+            request = header;
+        }
+
+        if(method.equals("POST")){
+            int n = reqraw.indexOf("\n\n") != -1 ? reqraw.indexOf("\n\n") : reqraw.indexOf("\r\n\r\n");
+            header = reqraw.substring(0, n).trim();
+            body = reqraw.substring(n + 1, reqraw.length()).trim();
+            if(header.indexOf("\n")>=0 && header.indexOf("\r\n") <0){
+                header = header.replace("\n","\r\n");
+            }
+            request = header + "\r\n\r\n" + body;
+        }
+        return request;
+    }
+
 
     public String getHttpService(){
         return service.toString();
@@ -129,14 +170,14 @@ public class HttpClient {
             int length = data.length();
             headers.put("Content-Length", String.valueOf(length));
             String reqLine = String.format("%s %s %s",method,path,httpversion);
-            reqLine += System.lineSeparator();
+            reqLine += "\r\n";
             for(Map.Entry<String,String> header:headers.entrySet()){
                 String line = String.format("%s: %s",header.getKey(),header.getValue());
                 reqLine += line;
-                reqLine += System.lineSeparator();
+                reqLine += "\r\n";
             }
 
-            reqLine += System.lineSeparator();
+            reqLine += "\r\n";
             reqLine += data;
             this.raw = reqLine;
         }

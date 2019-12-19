@@ -394,7 +394,7 @@ public class GUI {
                     JMenu menuTmplManager = new JMenu("模版库");
                     JMenuItem miGeneralTmpl = new JMenuItem("通用模版");
                     JMenuItem miTesseract = new JMenuItem("tesseract-ocr-web");
-                    JMenuItem miBaiduOCR = new JMenuItem("百度OCR");
+                    JMenuItem miBaiduOCR = new JMenuItem("Baidu OCR");
                     JMenuItem miCNNCaptcha = new JMenuItem("cnn_captcha");
                     JMenuItem miSaveTpl = new JMenuItem("保存为模版");
                     JMenuItem miUpdateTpl = new JMenuItem("更新模版");

@@ -18,7 +18,7 @@ public class Menu implements IContextMenuFactory {
     public List<JMenuItem> createMenuItems(final IContextMenuInvocation invocation) {
         List<JMenuItem> menus = new ArrayList();
         JMenu menu = new JMenu("captcha-killer");
-        JMenuItem miSend2Cap = new JMenuItem("Send to captch panel");
+        JMenuItem miSend2Cap = new JMenuItem("Send to captcha panel");
         JMenuItem miSend2Interface = new JMenuItem("Send to interface panel");
         menu.add(miSend2Cap);
         menu.add(miSend2Interface);
