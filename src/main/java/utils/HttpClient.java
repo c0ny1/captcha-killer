@@ -8,6 +8,8 @@ import burp.BurpExtender;
 import burp.IHttpRequestResponse;
 import burp.IRequestInfo;
 import entity.HttpService;
+
+import java.io.BufferedOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -111,12 +113,11 @@ public class HttpClient {
                         continue;
                     }
 
-                    if (header.indexOf(": ") > 0) {
-                        String key = header.split(": ")[0];
-                        String value = header.split(": ")[1];
+                    if (header.indexOf(":") > 0) {
+                        String key = header.substring(0, header.indexOf(":"));
+                        String value = Util.trimStart(header.substring(header.indexOf(":")+1, header.length()));
                         this.headers.put(key, value);
                     }
-                    System.out.println(header);
                 }
 
                 if (this.method.equals("POST")) {

@@ -303,6 +303,28 @@ public class Util {
         return res;
     }
 
+    /**
+     * 将字符串开头空格去掉
+     * @param str
+     * @return
+     */
+    public static String trimStart(String str) {
+        if (str == "" || str == null) {
+            return str;
+        }
 
-
+        final char[] value = str.toCharArray();
+        int start = 0, last = 0 + str.length() - 1;
+        int end = last;
+        while ((start <= end) && (value[start] <= ' ')) {
+            start++;
+        }
+        if (start == 0 && end == last) {
+            return str;
+        }
+        if (start >= end) {
+            return "";
+        }
+        return str.substring(start, end);
+    }
 }
