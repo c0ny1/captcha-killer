@@ -1,6 +1,6 @@
 ---
 name: Bug报告模版
-about: 为了更好更快解决你的问题，请安装模版提供相关信息
+about: 为了更好更快解决你的问题，请按照模版提供相关信息
 title: "[BUG]"
 labels: bug
 assignees: c0ny1
