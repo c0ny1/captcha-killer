@@ -221,6 +221,8 @@ public class GUI {
         cbmRuleType = new JComboBox(str);
 
         tfRegular = new JTextField(30);
+        tfRegular.setText("response_data");
+        tfRegular.setEnabled(false);
         btnSaveTmpl = new JButton("匹配");
         btnSaveTmpl.setToolTipText("用于测试编写的规则是否正确");
         tpInterfaceRsq = new JTabbedPane();
