@@ -314,7 +314,7 @@ public class Util {
         }
 
         final char[] value = str.toCharArray();
-        int start = 0, last = 0 + str.length() - 1;
+        int start = 0, last = 0 + str.length();
         int end = last;
         while ((start <= end) && (value[start] <= ' ')) {
             start++;
