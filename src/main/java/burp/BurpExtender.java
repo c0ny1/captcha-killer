@@ -35,7 +35,7 @@ public class BurpExtender implements IBurpExtender,ITab,IIntruderPayloadGenerato
     public static IBurpExtenderCallbacks callbacks;
     public static IExtensionHelpers helpers;
     private String extensionName = "captcha-killer";
-    private String version ="0.1";
+    private String version ="0.1.1";
     public static PrintWriter stdout;
     public static PrintWriter stderr;
     public static GUI gui;
