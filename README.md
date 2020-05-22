@@ -31,7 +31,11 @@ mvn package
 * 《captcha-killer调用百度ocr识别验证码》[待发布]
 * 《capatch-killer+机器学习识别验证码》[待发布]
 
-## 0x04 同类项目
+## 0x04 注意事项
+* 请求验证码的cookie要和爆破表单的cookie一致
+* 必须单线程爆破，多线程会出现验证码失效问题
+
+## 0x05 同类项目
 * [reCAPTCHA](https://github.com/bit4woo/reCAPTCHA)
 * [实现一个简单的Burp验证码本地识别插件](https://www.freebuf.com/articles/web/168679.html)
 * https://github.com/Releasel0ck/reCAPTCHA
