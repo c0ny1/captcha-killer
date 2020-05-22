@@ -7,6 +7,7 @@ package ui;
 import burp.BurpExtender;
 import com.alibaba.fastjson.JSON;
 import entity.*;
+import matcher.impl.JsonMatcher;
 import ui.model.TableModel;
 import utils.HttpClient;
 import utils.RuleMannager;
@@ -217,7 +218,7 @@ public class GUI {
 
         plInterfaceRsq = new JPanel();
         plInterfaceRsq.setLayout(new GridBagLayout());
-        String[] str = new String[]{"Response data","Regular expression","Define the start and end positions","Defines the start and end strings"};
+        String[] str = new String[]{"Response data","Regular expression","Define the start and end positions","Defines the start and end strings","json field match"};
         cbmRuleType = new JComboBox(str);
 
         tfRegular = new JTextField(30);
@@ -653,6 +654,11 @@ public class GUI {
                         String rule2 = RuleMannager.generateStartEndRule(raw,start+rnCount,end+rnCount);
                         tfRegular.setText(rule2);
                         break;
+                    case Rule.RULE_TYPE_JSON_MATCH:
+                        JsonMatcher jsonMatcher = new JsonMatcher();
+                        String rspData =  new String(Util.getRspBody(raw.getBytes()));
+                        String rule = jsonMatcher.buildKeyword(rspData,InterfaceRsq.getSelectedText());
+                        tfRegular.setText(rule);
                     default:
                         break;
                 }

@@ -11,6 +11,7 @@ public class Rule {
     public final static int RULE_TYPE_REGULAR = 1;
     public final static int RULE_TYPE_POSISTION = 2;
     public final static int RULE_TYPE_START_END_STRING = 3;
+    public final static int RULE_TYPE_JSON_MATCH = 4;
     private int type;
     private String rule;
     private int nStart;
@@ -32,6 +33,8 @@ public class Rule {
             String[] str = parseStartEndString(rule);
             this.strStart = str[0];
             this.strEnd = str[1];
+        }else if(type == RULE_TYPE_JSON_MATCH){
+            this.rule = rule;
         }
     }
 
@@ -52,8 +55,10 @@ public class Rule {
             return String.format("{\"start\":%d,\"end\":%d}",nStart,nEnd);
         }else if(type == RULE_TYPE_START_END_STRING){
             return String.format("{\"start\":%s,\"end\":%s}",strStart,strEnd);
+        }else if(type == RULE_TYPE_JSON_MATCH){
+            return rule;
         }else{
-            return "unkown rule type";
+            return rule;
         }
 
     }
