@@ -8,6 +8,7 @@ import burp.BurpExtender;
 import entity.MatchResult;
 import entity.Rule;
 import matcher.impl.JsonMatcher;
+import matcher.impl.XmlMatcher;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -49,6 +50,9 @@ public class RuleMannager {
             case Rule.RULE_TYPE_JSON_MATCH:
                 JsonMatcher jsonMatcher = new JsonMatcher();
                 return jsonMatcher.match(str,rule.getRule());
+            case Rule.RULE_TYPE_XML_MATCH:
+                XmlMatcher xmlMatcher = new XmlMatcher();
+                return xmlMatcher.match(str,rule.getRule());
             default:
                 MatchResult result = new MatchResult();
                 result.setResult("unkown rule type");

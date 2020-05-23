@@ -8,6 +8,7 @@ import burp.BurpExtender;
 import com.alibaba.fastjson.JSON;
 import entity.*;
 import matcher.impl.JsonMatcher;
+import matcher.impl.XmlMatcher;
 import ui.model.TableModel;
 import utils.HttpClient;
 import utils.RuleMannager;
@@ -218,7 +219,7 @@ public class GUI {
 
         plInterfaceRsq = new JPanel();
         plInterfaceRsq.setLayout(new GridBagLayout());
-        String[] str = new String[]{"Response data","Regular expression","Define the start and end positions","Defines the start and end strings","json field match"};
+        String[] str = new String[]{"Response data","Regular expression","Define the start and end positions","Defines the start and end strings","json field match","xml element match"};
         cbmRuleType = new JComboBox(str);
 
         tfRegular = new JTextField(30);
@@ -590,7 +591,7 @@ public class GUI {
                 }
             }
         });
-        //保存模版
+        //匹配
         btnSaveTmpl.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -629,7 +630,7 @@ public class GUI {
                 ((StyledDocument) InterfaceRsq.getDocument()).setCharacterAttributes(offest,length,keywordStyle,true);
             }
         });
-
+        // 标记为结果
         miMarkIdentifyResult.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -637,27 +638,32 @@ public class GUI {
                 int end = InterfaceRsq.getSelectionEnd();
                 int rnCount = 0;
                 String raw = InterfaceRsq.getText();
+                String rspData = new String(Util.getRspBody(raw.getBytes()));
+                String rule = null;
                 switch (cbmRuleType.getSelectedIndex()){
                     case Rule.RULE_TYPE_REGULAR:
                         //JTextPanel.getSelectionStart()和getSelectionEnd()与String.indexOf获取到的位置有区别，需要进行转换
                         rnCount = Util.getRNCount(raw.substring(0,start));
-                        String regular = RuleMannager.generateRegular(raw,start+rnCount,end+rnCount);
-                        tfRegular.setText(regular);
+                        rule = RuleMannager.generateRegular(raw,start+rnCount,end+rnCount);
+                        tfRegular.setText(rule);
                         break;
                     case Rule.RULE_TYPE_POSISTION:
-                        String rule1 = RuleMannager.generatePositionRule(start,end);
-                        tfRegular.setText(rule1);
+                        rule = RuleMannager.generatePositionRule(start,end);
+                        tfRegular.setText(rule);
                         break;
                     case Rule.RULE_TYPE_START_END_STRING:
                         //JTextPanel.getSelectionStart()和getSelectionEnd()与String.indexOf获取到的位置有区别，需要进行转换
                         rnCount = Util.getRNCount(raw.substring(0,start));
-                        String rule2 = RuleMannager.generateStartEndRule(raw,start+rnCount,end+rnCount);
-                        tfRegular.setText(rule2);
+                        rule = RuleMannager.generateStartEndRule(raw,start+rnCount,end+rnCount);
+                        tfRegular.setText(rule);
                         break;
                     case Rule.RULE_TYPE_JSON_MATCH:
                         JsonMatcher jsonMatcher = new JsonMatcher();
-                        String rspData =  new String(Util.getRspBody(raw.getBytes()));
-                        String rule = jsonMatcher.buildKeyword(rspData,InterfaceRsq.getSelectedText());
+                        rule = jsonMatcher.buildKeyword(rspData,InterfaceRsq.getSelectedText());
+                        tfRegular.setText(rule);
+                    case Rule.RULE_TYPE_XML_MATCH:
+                        XmlMatcher xmlMatcher = new XmlMatcher();
+                        rule = xmlMatcher.buildKeyword(raw,InterfaceRsq.getSelectedText());
                         tfRegular.setText(rule);
                     default:
                         break;

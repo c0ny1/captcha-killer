@@ -12,6 +12,7 @@ public class Rule {
     public final static int RULE_TYPE_POSISTION = 2;
     public final static int RULE_TYPE_START_END_STRING = 3;
     public final static int RULE_TYPE_JSON_MATCH = 4;
+    public final static int RULE_TYPE_XML_MATCH = 5;
     private int type;
     private String rule;
     private int nStart;
@@ -35,6 +36,8 @@ public class Rule {
             this.strEnd = str[1];
         }else if(type == RULE_TYPE_JSON_MATCH){
             this.rule = rule;
+        }else if(type == RULE_TYPE_XML_MATCH){
+            this.rule = rule;
         }
     }
 
@@ -56,6 +59,8 @@ public class Rule {
         }else if(type == RULE_TYPE_START_END_STRING){
             return String.format("{\"start\":%s,\"end\":%s}",strStart,strEnd);
         }else if(type == RULE_TYPE_JSON_MATCH){
+            return rule;
+        }else if(type == RULE_TYPE_XML_MATCH){
             return rule;
         }else{
             return rule;
