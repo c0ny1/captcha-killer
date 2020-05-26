@@ -69,6 +69,7 @@ public class GUI {
     private TableModel model;
     private JPopupMenu pppMenu = new JPopupMenu();
     private JMenuItem miClear = new JMenuItem("清空");
+    private JMenuItem miShowIntruderResult = new JMenuItem("关闭Intruder识别结果显示");
 
     //一些公共变量
     private byte[] byteImg;
@@ -254,6 +255,7 @@ public class GUI {
         //识别结果面板
         plResult = new JPanel();
         pppMenu.add(miClear);
+        pppMenu.add(miShowIntruderResult);
         table = new JTable();
         model = new TableModel(table);
         table.setModel(model);
@@ -716,6 +718,19 @@ public class GUI {
                 synchronized (captcha){
                     captcha.clear();
                     model.fireTableDataChanged();
+                }
+            }
+        });
+
+        miShowIntruderResult.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(BurpExtender.isShowIntruderResult) {
+                    BurpExtender.isShowIntruderResult = false;
+                    miShowIntruderResult.setText("显示Intruder识别结果");
+                }else{
+                    BurpExtender.isShowIntruderResult = true;
+                    miShowIntruderResult.setText("隐藏Intruder识别结果");
                 }
             }
         });

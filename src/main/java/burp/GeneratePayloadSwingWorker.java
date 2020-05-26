@@ -27,11 +27,12 @@ public class GeneratePayloadSwingWorker extends SwingWorker {
                     break;
                 }
             }
-
-            synchronized (BurpExtender.gui.captcha){
-                int row = BurpExtender.gui.captcha.size();
-                BurpExtender.gui.captcha.add(cap);
-                BurpExtender.gui.getModel().fireTableRowsInserted(row,row);
+            if(BurpExtender.isShowIntruderResult) {
+                synchronized (BurpExtender.gui.captcha) {
+                    int row = BurpExtender.gui.captcha.size();
+                    BurpExtender.gui.captcha.add(cap);
+                    BurpExtender.gui.getModel().fireTableRowsInserted(row, row);
+                }
             }
         } catch (Exception e) {
             cap.setResult(e.getMessage());
