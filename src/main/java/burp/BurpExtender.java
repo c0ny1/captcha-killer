@@ -82,35 +82,44 @@ public class BurpExtender implements IBurpExtender,ITab,IIntruderPayloadGenerato
 
     @Override
     public byte[] getNextPayload(byte[] bytes) {
-        if(!Util.isURL(gui.getInterfaceURL().getText())){
-            return "Interface URL format invalid".getBytes();
-        }
-
-        CaptchaEntity cap = new CaptchaEntity();
-        int count = 0;
+//        if(!Util.isURL(gui.getInterfaceURL().getText())){
+//            return "Interface URL format invalid".getBytes();
+//        }
+//
+//        CaptchaEntity cap = new CaptchaEntity();
+//        int count = 0;
+//        try {
+//            byte[] byteImg = Util.requestImage(gui.getCaptchaURL(),gui.getCaptchaReqRaw());
+//            //遗留问题：burp自带的发包，无法指定超时。如果访问速度过快，这里可能为空。
+//            while (count < 3){
+//                cap = GUI.identifyCaptcha(gui.getInterfaceURL().getText(),gui.getTaInterfaceTmplReq().getText(),byteImg,gui.getCbmRuleType().getSelectedIndex(),gui.getRegular().getText());
+//                if(cap.getResult() == null || cap.getResult().trim().equals("")){
+//                    Thread.sleep(1000);
+//                    count += 1;
+//                }else{
+//                    break;
+//                }
+//            }
+//
+//            synchronized (gui.captcha){
+//                int row = gui.captcha.size();
+//                gui.captcha.add(cap);
+//                gui.getModel().fireTableRowsInserted(row,row);
+//            }
+//        } catch (Exception e) {
+//            cap.setResult(e.getMessage());
+//        }
+//
+//        return cap.getResult().getBytes();
+        GeneratePayloadSwingWorker gpsw = new GeneratePayloadSwingWorker();
+        gpsw.execute();
         try {
-            byte[] byteImg = Util.requestImage(gui.getCaptchaURL(),gui.getCaptchaReqRaw());
-            //遗留问题：burp自带的发包，无法指定超时。如果访问速度过快，这里可能为空。
-            while (count < 3){
-                cap = GUI.identifyCaptcha(gui.getInterfaceURL().getText(),gui.getTaInterfaceTmplReq().getText(),byteImg,gui.getCbmRuleType().getSelectedIndex(),gui.getRegular().getText());
-                if(cap.getResult() == null || cap.getResult().trim().equals("")){
-                    Thread.sleep(1000);
-                    count += 1;
-                }else{
-                    break;
-                }
-            }
-
-            synchronized (gui.captcha){
-                int row = gui.captcha.size();
-                gui.captcha.add(cap);
-                gui.getModel().fireTableRowsInserted(row,row);
-            }
-        } catch (Exception e) {
-            cap.setResult(e.getMessage());
+            Object result = gpsw.get();
+            return (byte[])result;
+        }catch (Exception e){
+            e.printStackTrace();
+            return String.format("Erro: %s",e.getMessage()).getBytes();
         }
-
-        return cap.getResult().getBytes();
     }
 
     @Override

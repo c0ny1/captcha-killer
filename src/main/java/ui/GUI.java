@@ -230,6 +230,7 @@ public class GUI {
         tpInterfaceRsq = new JTabbedPane();
         InterfaceRsq = new JTextPane();
         InterfaceRsq.setEditable(true);
+
         pppInterfaceRsq.add(miMarkIdentifyResult);
 
         //JScrollPane spInterfaceRsq = new JScrollPane(taInterfaceRsq);
