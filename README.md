@@ -1,7 +1,7 @@
 <h1 align="center">captcha-killer</h1>
 
 <p align="center">
-  <img title="portainer" src='https://img.shields.io/badge/version-0.1-brightgreen.svg' />
+  <img title="portainer" src='https://img.shields.io/badge/version-0.1.2-brightgreen.svg' />
   <img title="portainer" src='https://img.shields.io/badge/java-1.7.*-yellow.svg' />
   <img title="portainer" src='https://img.shields.io/badge/license-MIT-red.svg' />
 </p>
