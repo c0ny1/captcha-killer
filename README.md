@@ -29,7 +29,7 @@ mvn package
 * [《captcha-killer调用tesseract-ocr识别验证码》](doc/case01/)
 * 《captcha-killer调用完美识别验证码系统》[待发布]
 * 《captcha-killer调用百度ocr识别验证码》[待发布]
-* [《capatch-killer+机器学习识别验证码》][https://zhuanlan.zhihu.com/p/240399663]
+* [《capatch-killer+机器学习识别验证码》](https://zhuanlan.zhihu.com/p/240399663)
 
 ## 0x04 注意事项
 * 请求验证码的cookie要和爆破表单的cookie一致
