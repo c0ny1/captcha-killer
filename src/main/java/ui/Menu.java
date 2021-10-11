@@ -34,6 +34,11 @@ public class Menu implements IContextMenuFactory {
                     String url = String.format("%s://%s:%d",httpservice.getProtocol(),httpservice.getHost(),httpservice.getPort());
                     BurpExtender.gui.getTfURL().setText(url);
                     BurpExtender.gui.getTaRequest().setText(new String(iReqResp.getRequest()));
+                    //重新发送验证码请求包后解锁匹配按钮，重置正则
+                    BurpExtender.gui.tlbReg.setEnabled(true);
+                    BurpExtender.gui.resRegular.setEnabled(true);
+                    BurpExtender.gui.resRegular.setText("(.*?)");
+
                 }catch (Exception e){
                     BurpExtender.stderr.println("[-] " + e.getMessage());
                 }

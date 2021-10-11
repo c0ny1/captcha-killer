@@ -6,8 +6,8 @@ package utils;
 
 import burp.BurpExtender;
 import burp.IResponseInfo;
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
+//import sun.misc.BASE64Decoder;
+//import sun.misc.BASE64Encoder;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
@@ -126,36 +126,56 @@ public class Util {
         return result;
     }
 
+//    public static String base64Encode(byte[] byteArray){
+//        //https://www.cnblogs.com/alter888/p/9140732.html
+//        final BASE64Encoder encoder = new BASE64Encoder();
+//        String res = encoder.encode(byteArray);
+//        res = res.replace(System.lineSeparator(),"");
+//        return res;
+//    }
     public static String base64Encode(byte[] byteArray){
         //https://www.cnblogs.com/alter888/p/9140732.html
-        final BASE64Encoder encoder = new BASE64Encoder();
-        String res = encoder.encode(byteArray);
+        String res = java.util.Base64.getEncoder().encodeToString(byteArray);
         res = res.replace(System.lineSeparator(),"");
         return res;
     }
 
+//    public static String base64Encode(String str){
+//        final BASE64Encoder encoder = new BASE64Encoder();
+//        byte[] b = new byte[]{};
+//        try {
+//            b = str.getBytes("UTF-8");
+//        } catch (UnsupportedEncodingException e) {
+//            e.printStackTrace();
+//        }
+//        String res = encoder.encode(b);
+//        //去除base64结果中的换行符，java base64编码默认会76个字母换行一次
+//        res = res.replace(System.lineSeparator(),"");
+//        return res;
+//    }
+
     public static String base64Encode(String str){
-        final BASE64Encoder encoder = new BASE64Encoder();
-        byte[] b = new byte[]{};
-        try {
-            b = str.getBytes("UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        String res = encoder.encode(b);
+
+        String res = java.util.Base64.getEncoder().encodeToString(str.getBytes());
         //去除base64结果中的换行符，java base64编码默认会76个字母换行一次
         res = res.replace(System.lineSeparator(),"");
         return res;
     }
 
+
+//    public static byte[] base64Decode(String str){
+//        final BASE64Decoder decoder = new BASE64Decoder();
+//        byte[] byteRes = new byte[]{};
+//        try {
+//            byteRes = decoder.decodeBuffer(str);
+//        } catch (IOException e) {
+//            BurpExtender.stderr.println("[-] " + e.getMessage());
+//        }
+//        return byteRes;
+//    }
+
     public static byte[] base64Decode(String str){
-        final BASE64Decoder decoder = new BASE64Decoder();
-        byte[] byteRes = new byte[]{};
-        try {
-            byteRes = decoder.decodeBuffer(str);
-        } catch (IOException e) {
-            BurpExtender.stderr.println("[-] " + e.getMessage());
-        }
+        byte[] byteRes = java.util.Base64.getDecoder().decode(str);
         return byteRes;
     }
 
