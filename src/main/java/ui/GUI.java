@@ -23,6 +23,10 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.swing.JOptionPane;
 
 public class GUI {
     private JPanel MainPanel;
@@ -39,6 +43,7 @@ public class GUI {
     private JLabel lbCaptcha;
     private JLabel lbImage;
     private JToggleButton tlbLock;
+    public JToggleButton tlbReg;
     private JTextArea taResponse;
 
     //接口配置编码
@@ -55,9 +60,15 @@ public class GUI {
     //private JTextArea taInterfaceRsq;
     private JTextPane InterfaceRsq;
     private JLabel lbRuleType = new JLabel("匹配方式:");
+    private JLabel resRuleType = new JLabel("匹配方式:");
     private JComboBox cbmRuleType;
     private JLabel lbRegular = new JLabel("匹配规则:");
     private JTextField tfRegular;
+
+    //让其他类可以访问
+    public JTextField resRegular;
+    public static String resRegularStr;
+
     private JButton btnSaveTmpl;
     JMenuItem miMarkIdentifyResult = new JMenuItem("标记为识别结果");
     JPopupMenu pppInterfaceRsq = new JPopupMenu();
@@ -124,9 +135,14 @@ public class GUI {
         return this.tfRegular;
     }
 
+    public String getRegularTest() {
+        return this.tfRegular.getText();
+    }
+
     public JComboBox getCbmRuleType(){
         return this.cbmRuleType;
     }
+
 
     public GUI(){
         initGUI();
@@ -159,12 +175,23 @@ public class GUI {
         imgLeftPanel.add(btnGetCaptcha,gbc_btngetcaptcha);
         imgLeftPanel.add(spRequest,gbc_tarequst);
 
+        //CoolCat
         JPanel imgRigthPanel = new JPanel();
         imgRigthPanel.setLayout(new GridBagLayout());
-        lbImage = new JLabel("");
-        lbCaptcha = new JLabel("验证码:");
+        lbImage = new JLabel("等待获取");
+        lbCaptcha = new JLabel("验证码状态:");
+
+        resRegular = new JTextField(30);
+        resRegular.setText("(.*?)");
+        resRegularStr = resRegular.getText();
+        resRegular.setEnabled(true);
+
+        tlbReg = new JToggleButton("匹配");
         tlbLock = new JToggleButton("锁定");
         tlbLock.setToolTipText("当配置好所有选项后，请锁定防止配置被改动！");
+
+        //1
+        //1
 
         taResponse = new JTextArea();
         taResponse.setLineWrap(true);
@@ -173,12 +200,18 @@ public class GUI {
         JScrollPane spResponse = new JScrollPane(taResponse);
 
         GBC gbc_lbcaptcha = new GBC(0,0,1,1).setFill(GBC.BOTH).setInsets(3,3,0,0);
-        GBC gbc_lbimage = new GBC(1,0,1,100).setFill(GBC.BOTH).setWeight(100,1).setInsets(3,3,0,0);
-        GBC gbc_tlblock = new GBC(2,0,1,1).setFill(GBC.BOTH).setInsets(3,3,0,3);
+        GBC gbc_lbimage = new GBC(1,0,1,100).setFill(GBC.BOTH).setWeight(10,1).setInsets(3,3,0,0);
+        GBC gbc_resregular = new GBC(2,0,1,1).setFill(GBC.BOTH).setWeight(80,1).setInsets(3,3,0,3);
+        GBC gbc_tlbreg = new GBC(3,0,1,1).setFill(GBC.BOTH).setInsets(3,3,0,3);
+        GBC gbc_tlblock = new GBC(4,0,1,1).setFill(GBC.BOTH).setInsets(3,3,0,3);
         GBC gbc_taresponse = new GBC(0,100,100,100).setFill(GBC.BOTH).setWeight(100,100).setInsets(3,3,3,3);
 
         imgRigthPanel.add(lbCaptcha,gbc_lbcaptcha);
         imgRigthPanel.add(lbImage,gbc_lbimage);
+        //加匹配按钮
+        imgRigthPanel.add(tlbReg,gbc_tlbreg);
+        imgRigthPanel.add(resRegular,gbc_resregular);
+        //加匹配按钮
         imgRigthPanel.add(tlbLock,gbc_tlblock);
         imgRigthPanel.add(spResponse,gbc_taresponse);
         spImg = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
@@ -194,12 +227,32 @@ public class GUI {
 
         lbInterfaceURL = new JLabel("接口URL:");
         tfInterfaceURL = new JTextField(30);
+
+        //内置接口url
+        tfInterfaceURL.setText("https://api.ttshitu.com:443");
         btnIdentify = new JButton("识别");
 
         tpInterfaceReq = new JTabbedPane();
         taInterfaceTmplReq = new JTextArea();
         taInterfaceTmplReq.setLineWrap(true);
         taInterfaceTmplReq.setWrapStyleWord(true);
+
+        String tmplate = "POST /base64 HTTP/1.1\n" +
+                "Host: api.ttshitu.com\n" +
+                "Connection: close\n" +
+                "Cache-Control: max-age=0\n" +
+                "Upgrade-Insecure-Requests: 1\n" +
+                "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.132 Safari/537.36\n" +
+                "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3\n" +
+                "Sec-Fetch-Site: none\n" +
+                "Accept-Encoding: gzip, deflate\n" +
+                "Accept-Language: zh-CN,zh;q=0.9\n" +
+                "Content-Length: 113\n" +
+                "\n" +
+                "{\"username\": \"yw\", \"password\": \"123456\", \"typeid\":\"3\", \"image\": \"<@BASE64><@IMG_RAW></@IMG_RAW></@BASE64>\"}";
+
+        taInterfaceTmplReq.setText(tmplate);
+
         JScrollPane spInterfaceReq = new JScrollPane(taInterfaceTmplReq);
         taInterfaceRawReq = new JTextArea();
         taInterfaceRawReq.setLineWrap(true);
@@ -218,13 +271,14 @@ public class GUI {
         plInterfaceReq.add(btnIdentify,gbc_btnidentify);
         plInterfaceReq.add(tpInterfaceReq,gbc_tpinterfacereq);
 
+
         plInterfaceRsq = new JPanel();
         plInterfaceRsq.setLayout(new GridBagLayout());
         String[] str = new String[]{"Response data","Regular expression","Define the start and end positions","Defines the start and end strings","json field match","xml element match"};
         cbmRuleType = new JComboBox(str);
 
         tfRegular = new JTextField(30);
-        tfRegular.setText("response_data");
+        tfRegular.setText("\"result\":\"(.*?)\",\"id\"");
         tfRegular.setEnabled(false);
         btnSaveTmpl = new JButton("匹配");
         btnSaveTmpl.setToolTipText("用于测试编写的规则是否正确");
@@ -316,6 +370,10 @@ public class GUI {
                 boolean isSelected = tlbLock.isSelected();
                 if(isSelected){
                     tlbLock.setText("解锁");
+                    //同步按钮灰色
+                    tlbReg.setEnabled(false);
+                    resRegular.setEnabled(false);
+                    //同步按钮灰色
                     tfURL.setEnabled(false);
                     taRequest.setEnabled(false);
                     btnGetCaptcha.setEnabled(false);
@@ -330,6 +388,10 @@ public class GUI {
                     InterfaceRsq.setEnabled(false);
                 }else{
                     tlbLock.setText("锁定");
+                    //同步按钮灰色
+                    tlbReg.setEnabled(true);
+                    resRegular.setEnabled(true);
+                    //同步按钮灰色
                     tfURL.setEnabled(true);
                     taRequest.setEnabled(true);
                     btnGetCaptcha.setEnabled(true);
@@ -594,7 +656,46 @@ public class GUI {
                 }
             }
         });
-        //匹配
+
+
+        //匹配验证码接口
+        tlbReg.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Style keywordStyle = ((StyledDocument) InterfaceRsq.getDocument()).addStyle("Keyword_Style", null);
+                StyleConstants.setBackground(keywordStyle, Color.YELLOW);
+                Style normalStyle = ((StyledDocument) InterfaceRsq.getDocument()).addStyle("Keyword_Style", null);
+                StyleConstants.setForeground(normalStyle, Color.BLACK);
+                ((StyledDocument) InterfaceRsq.getDocument()).setCharacterAttributes(0,InterfaceRsq.getText().length(),normalStyle,true);
+
+                int type = cbmRuleType.getSelectedIndex();
+                String rule = resRegular.getText();
+                resRegularStr = rule;
+
+                Toolkit.getDefaultToolkit().beep();
+
+                //JOptionPane.showMessageDialog(null, rule, "test",JOptionPane.INFORMATION_MESSAGE);
+
+                String filetext = taResponse.getText();
+                Pattern p = Pattern.compile(rule);//正则表达式，取=和|之间的字符串，不包括=和|
+                Matcher m = p.matcher(filetext);
+
+                while(m.find()) {
+                    //System.out.println(m.group(1));//m.group(0)包括这两个字符
+                    //JOptionPane.showMessageDialog(null, m.group(1), "test",JOptionPane.INFORMATION_MESSAGE);
+                    byteImg = Util.base64Decode(m.group(1));
+                    ImageIcon icon = Util.byte2img(byteImg);
+                    lbImage.setIcon(icon);
+                    lbImage.setText("");
+                    tlbReg.setEnabled(false);
+                    resRegular.setEnabled(false);
+
+                }
+                //JOptionPane.showMessageDialog(null, , "test",JOptionPane.INFORMATION_MESSAGE);
+            }
+        });
+
+        //识别结果匹配
         btnSaveTmpl.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -697,6 +798,7 @@ public class GUI {
                 if(row != -1) {
                     taInterfaceRawReq.setText(new String(captcha.get(row).getReqRaw()));
                     InterfaceRsq.setText(new String(captcha.get(row).getRsqRaw()));
+
                 }
             }
         });
@@ -753,12 +855,33 @@ public class GUI {
             tfURL.setText(service.toString());
 
             try {
-                byte[] byteRes = Util.requestImage(url,raw);
-                if(Util.isImage(byteRes)){
-                    byteImg =  byteRes;
+
+                byte[] byteRes = Util.requestImage(url,raw);;
+
+
+                if(Util.isImage(byteRes)) {
+                    byteImg = byteRes;
+                }else if(!resRegular.getText().equals("(.*?)")){
+                    tlbReg.setEnabled(true);
+                    resRegular.setEnabled(true);
+                    String filetext = taResponse.getText();
+                    Pattern p = Pattern.compile(resRegular.getText());//正则表达式，取=和|之间的字符串，不包括=和|
+                    Matcher m = p.matcher(filetext);
+                    while(m.find()) {
+                        //JOptionPane.showMessageDialog(null, m.group(1), "test",JOptionPane.INFORMATION_MESSAGE);
+                        byteImg = Util.base64Decode(m.group(1));
+                        ImageIcon icon = Util.byte2img(byteImg);
+                        lbImage.setIcon(icon);
+                        lbImage.setText("");
+                        resRegularStr = resRegular.getText();
+                        tlbReg.setEnabled(false);
+                        resRegular.setEnabled(false);
+                        //break;
+                    }
+
                 }else{
                     lbImage.setIcon(null);
-                    lbImage.setText("获取到的不是图片文件！");
+                    lbImage.setText("获取到的不是图片文件，请修改正则。");
                     lbImage.setForeground(Color.RED);
                     return;
                 }
@@ -766,6 +889,11 @@ public class GUI {
                 ImageIcon icon = Util.byte2img(byteImg);
                 lbImage.setIcon(icon);
                 lbImage.setText("");
+                resRegularStr = resRegular.getText();
+
+                tlbReg.setEnabled(false);
+                resRegular.setEnabled(false);
+
             } catch (Exception e) {
                 BurpExtender.stderr.println(e.getMessage());
             }finally {
@@ -821,6 +949,7 @@ public class GUI {
 
             HttpClient http = new HttpClient(url,raw,byteImg);
             taInterfaceRawReq.setText(http.getRaw());
+
             byte[] rsp = http.doReust();
             String rspRaw = new String(rsp);
             InterfaceRsq.setText(rspRaw);

@@ -1,10 +1,18 @@
 <h1 align="center">captcha-killer</h1>
 
 <p align="center">
-  <img title="portainer" src='https://img.shields.io/badge/version-0.1.2-brightgreen.svg' />
-  <img title="portainer" src='https://img.shields.io/badge/java-1.7.*-yellow.svg' />
+  <img title="portainer" src='https://img.shields.io/badge/version-0.1.4-brightgreen.svg' />
+  <img title="portainer" src='https://img.shields.io/badge/java-1.7-yellow.svg' />
   <img title="portainer" src='https://img.shields.io/badge/license-MIT-red.svg' />
 </p>
+
+## 0x00 修改日志
+ 
+ **20210329**
+ 
+ * 替换base64编码的库,兼容burp最新版(高版本jdk)
+
+ * 新增返回值非直接图片时的情况，自定义匹配结果。
 
 ## 0x01 插件简介
 `captcha-killer`要解决的问题是让burp能用上各种验证码识别技术！
@@ -29,7 +37,7 @@ mvn package
 * [《captcha-killer调用tesseract-ocr识别验证码》](doc/case01/)
 * 《captcha-killer调用完美识别验证码系统》[待发布]
 * 《captcha-killer调用百度ocr识别验证码》[待发布]
-* [《capatch-killer+机器学习识别验证码》](https://zhuanlan.zhihu.com/p/240399663)
+* 《capatch-killer+机器学习识别验证码》[待发布]
 
 ## 0x04 注意事项
 * 请求验证码的cookie要和爆破表单的cookie一致
